@@ -432,3 +432,18 @@ test('article navigation yields the full width to prose on mobile', async ({ pag
 	expect((await page.locator('.article-prose').boundingBox())!.width).toBeLessThanOrEqual(342);
 	expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
 });
+
+test('the first-game article explains authoritative multiplayer as four steps', async ({ page }) => {
+	for (const sample of [
+		{ path: '/it/articoli/il-mio-primo-videogioco-era-un-sistema-distribuito/', caption: 'Come un’azione diventa stato condiviso' },
+		{ path: '/en/writing/my-first-video-game-was-a-distributed-system/', caption: 'How one action becomes shared state' },
+	]) {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto(sample.path);
+		const figure = page.locator('.multiplayer-sequence');
+		await expect(figure.locator('ol > li')).toHaveCount(4);
+		await expect(figure.locator('figcaption')).toContainText(sample.caption);
+		expect((await figure.boundingBox())!.width).toBeLessThanOrEqual(342);
+		expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+	}
+});

@@ -17,6 +17,8 @@ tags:
 relatedProjectKey: galaxy-trucker
 ---
 
+import MultiplayerSequence from '../../../components/MultiplayerSequence.astro';
+
 > Quando ho iniziato a lavorare su Galaxy Trucker, immaginavo che costruire un videogioco significasse implementare regole, disegnare un'interfaccia e infine vedere qualcosa reagire sullo schermo. Prima che il gioco potesse esistere, però, dovevamo risolvere un problema meno visibile: fare in modo che più persone abitassero la stessa partita senza lasciare che i loro client fossero in disaccordo su ciò che era reale.
 >
 > È stato il mio primo progetto di gioco completo e una delle esperienze che hanno trasformato Java da linguaggio che stavo imparando a strumento per costruire un sistema insieme ad altre persone.
@@ -36,6 +38,8 @@ All'inizio associavo un gioco soprattutto a ciò che un giocatore poteva vedere.
 Nessuna di queste aree produce uno screenshot particolarmente spettacolare. Senza di esse, però, una nave grafica è soltanto un disegno locale. Un posizionamento diventa parte di un gioco multiplayer soltanto quando il client esprime un'intenzione, il server la valida e la applica e ogni giocatore coinvolto riceve un nuovo stato coerente.
 
 Guardando indietro, questo ciclo completo è la soglia che uso per distinguere una dimostrazione d'interfaccia da un gioco. Un pulsante che modifica la propria schermata è interazione. Una decisione che attraversa la rete e diventa realtà condivisa è un sistema.
+
+<MultiplayerSequence lang="it" />
 
 ## Quando Java ha smesso di essere un esercizio
 

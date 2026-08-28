@@ -17,6 +17,8 @@ tags:
 relatedProjectKey: galaxy-trucker
 ---
 
+import MultiplayerSequence from '../../../components/MultiplayerSequence.astro';
+
 > When I started working on Galaxy Trucker, I imagined that building a video game meant implementing rules, drawing an interface, and eventually watching something respond on screen. Before the game could exist, however, we had to solve a less visible problem: making several people inhabit the same match without letting their clients disagree about what was real.
 >
 > It was my first complete game project and one of the experiences that turned Java from a language I was learning into a medium for building a system with other people.
@@ -36,6 +38,8 @@ At the beginning I associated a game mainly with what a player could see. Much o
 None of those areas makes an impressive screenshot. Without them, however, a graphical ship is only a local drawing. A placement becomes part of a multiplayer game only when the client expresses an intention, the server validates and applies it, and every affected player receives a coherent new state.
 
 Looking back, that complete loop is the threshold I use to distinguish an interface demonstration from a game. A button changing its own screen is interaction. A decision surviving the network and becoming shared reality is a system.
+
+<MultiplayerSequence lang="en" />
 
 ## When Java stopped being an exercise
 

@@ -167,6 +167,13 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 .article-toc ol { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
 .article-toc a { text-decoration: underline; text-decoration-color: transparent; text-underline-offset: .25rem; }
 .article-toc a:hover { text-decoration-color: currentColor; }
+.multiplayer-sequence { margin: 2rem 0 3rem; font-family: var(--sans); }
+.multiplayer-sequence ol { display: grid; gap: 1px; margin: 0; padding: 1px; background: var(--line); list-style: none; }
+.multiplayer-sequence li { display: grid; grid-template-columns: 2.5rem minmax(0,1fr); gap: 1rem; padding: 1.25rem; background: var(--white); }
+.multiplayer-sequence li > span { color: var(--muted); font: .68rem var(--mono); }
+.multiplayer-sequence strong { display: block; font-size: 1rem; }
+.multiplayer-sequence p { margin: .35rem 0 0; color: var(--muted); font: .9rem/1.5 var(--sans); }
+.multiplayer-sequence figcaption { margin-top: .75rem; color: var(--muted); font: max(.7rem,11px)/1.55 var(--mono); }
 .project-grid.single { grid-template-columns: 1fr; }
 .project-grid.single .project-card { min-height: 34rem; }
 .about-page { display: grid; grid-template-columns: minmax(0,.7fr) minmax(16rem,.3fr); align-items: start; gap: clamp(4rem,10vw,10rem); }
