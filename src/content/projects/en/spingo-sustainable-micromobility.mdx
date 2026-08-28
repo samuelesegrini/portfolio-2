@@ -1,0 +1,116 @@
+---
+translationKey: spingo-sustainable-micromobility
+locale: en
+slug: spingo-sustainable-micromobility
+title: SpinGO
+excerpt: An HCI project that turns user research, prototyping, and usability testing into a mobile ecosystem for safer and more predictable urban micromobility.
+draft: false
+coverImage: /images/projects/spingo-micromobility.svg
+coverAlt: Geometric illustration of a bicycle connected by an acid-lime route to a safe destination
+seoTitle: SpinGO — Sustainable micromobility HCI case study
+seoDescription: User research, mobile prototyping, and usability testing for SpinGO, an HCI project focused on sustainable urban micromobility.
+kind: app
+year: 2026
+role: Frontend developer and HCI team member
+technologies:
+  - Human-computer interaction
+  - Figma
+  - React
+  - TypeScript
+  - GSAP
+featuredRank: 3
+repositoryURL: https://github.com/milenaramosduran/hci-eco
+liveURL: https://milenaramosduran.github.io/hci-eco/
+relatedPostKeys: []
+---
+
+> SpinGO is the 30%usability team project for the 2025–2026 Human-Computer Interaction course at Politecnico di Milano. The work follows the complete user-centred process: needfinding, synthesis, increasingly detailed prototypes, heuristic evaluation, and usability testing.
+>
+> The concept combines a mobile app with a smartwatch companion to help people using bicycles, e-bikes, and scooters choose safer routes, manage parking, and share useful information with the community.
+>
+> As frontend developer, I built the React and TypeScript website that organizes the findings, deliverables, and prototypes into an interactive narrative. The research and product design remain the collective work of the five-person team.
+
+<dl class="project-results" aria-label="Key results">
+  <div><dt>109</dt><dd>survey responses</dd></div>
+  <div><dt>7</dt><dd>usability-testing sessions</dd></div>
+  <div><dt>89.2</dt><dd>SUS score</dd></div>
+</dl>
+
+## The starting problem
+
+The team selected urban micromobility because its environmental potential often conflicts with a fragile everyday experience. Bicycles and scooters promise lightweight travel, yet traffic, discontinuous routes, theft, and unreliable information turn a convenient option into a decision filled with uncertainty.
+
+The question was therefore not simply how to build another navigation app. We wanted to understand what prevents people from adopting these vehicles consistently and how an interface could restore control without increasing distraction during the journey.
+
+## Needfinding and triangulation
+
+The first phase combined quantitative and qualitative methods. A questionnaire collected 109 responses, mainly from people aged 18–35 and living in Milan or its surrounding area. The sample included regular users, interested but inactive people, and people who did not currently consider micromobility.
+
+Four semi-structured interviews lasting 30–45 minutes examined concrete experiences: avoided routes, theft-prevention strategies, electric-vehicle range, and the limitations of existing applications. Two focus groups then challenged and refined the initial patterns, bringing the social dimension of trust into the research.
+
+Triangulation highlighted three recurring behaviours:
+
+- **The intention paradox.** Many people express interest, but safety and infrastructure prevent that interest from becoming regular use.
+- **Adaptation strategies.** Regular users memorize routes, choose unremarkable vehicles, and change schedules or destinations to reduce risk.
+- **Preventive renunciation.** Fear filters the decision before departure, especially when route and parking conditions cannot be predicted.
+
+## From evidence to needs
+
+Interviews and focus groups were analysed through open, axial, and selective coding. More than 150 raw codes first converged into thematic clusters and then into a collaborative board containing over fifty granular needs.
+
+Affinity mapping and dot voting narrowed them to four design directions:
+
+- **safety and control**, understood as anticipating risk and reading the context;
+- **trust**, in parking locations, information, and digital tools;
+- **fluidity**, reducing interruptions and cognitive load throughout the journey;
+- **belonging**, turning individual reports and experiences into collective knowledge.
+
+Personas and scenarios connected these needs to observable behaviour rather than presenting them as an abstract feature list. Every later design decision could therefore be traced back to a research finding or a tension experienced by participants.
+
+<figure class="project-explainer">
+  <img src="/images/projects/explainers/spingo-research-loop.svg" alt="User research transformed into product needs, a mobile prototype, and another testing cycle" width="1200" height="675" loading="lazy" />
+  <figcaption>Interviews, surveys, and focus groups converge into product needs; the prototype makes them testable, and evaluation feeds new evidence back into the process.</figcaption>
+</figure>
+
+## Three tasks and two directions
+
+The product was organized around three tasks of increasing complexity. The primary task supports planning and completing a safer journey by comparing alternatives, warnings, and parking options. The second covers vehicles, preferences, and routine personalization. The third enables community participation, from reporting hazards to sharing routes.
+
+During low-fidelity prototyping, the team compared two directions:
+
+- a dedicated handlebar device designed for glanceable information and isolation from smartphone distractions;
+- a native mobile app better suited to route comparison, detailed configuration, and rich community contributions.
+
+The mobile app covered all three tasks more effectively but introduced distraction during riding. The final direction retained the app’s richness while moving essential interactions to a smartwatch companion: the next turn, haptic feedback, and rapid voice reports.
+
+## From heuristics to high fidelity
+
+The mid-fidelity prototype introduced a persistent tab bar for Map, Profile, and Community. The Map became the operational centre for search, route comparison, reports, and parking; the Profile held vehicles and preferences; the Community organized discussions and contributions.
+
+An external heuristic evaluation revealed discoverability and clarity problems. The tab bar was too small, back controls did not follow established conventions, some actions lacked feedback, and the relationship between points of interest and saved routes was ambiguous.
+
+Before testing, the team increased the navigation’s size and legibility, added text labels and confirmations, repositioned controls according to mobile conventions, and separated places, routes, and personal vehicles more clearly.
+
+## Usability testing
+
+Seven participants aged 16–35 evaluated the high-fidelity prototype. Sessions ran in person or remotely, lasted about 45 minutes, and combined think-aloud, observation, timing, errors, a Single Ease Question after every task, and a final System Usability Scale questionnaire.
+
+The overall success rate reached 88%. Navigation was the strongest area at 93%, Community reached 89%, and Personalization scored 82%. The mean SUS result was 89.2, indicating high perceived usability, while the qualitative analysis exposed three important issues:
+
+- points of interest and saved routes were not always distinguishable;
+- the command for adding a vehicle to the Garage was visually subordinate;
+- starting a journey required redundant input instead of using the current position and a single start action.
+
+Testing was treated as a new source of decisions rather than final confirmation. The resulting recommendations prioritised unified flows, smart defaults, and clearer command affordances.
+
+## The project website
+
+I turned the course material into a React and TypeScript website deployed through GitHub Pages. The interface presents the research, personas, patterns, and six deliverables through dedicated components, connecting PDF documents and Figma prototypes without reducing the work to a download list.
+
+GSAP and ScrollTrigger power the animated title, navigation, transitions, and a horizontal deliverable timeline. The most complex component coordinates panels, progress, documents, and modal Figma previews. Content, imagery, and behaviour remain separated, while a GitHub Actions workflow builds and publishes the site whenever the main branch changes.
+
+## What I would carry forward
+
+SpinGO showed me that a positive score does not close a research cycle. A high SUS result describes the overall perception, while hesitation and wrong turns reveal where the information architecture still conflicts with the user’s mental model.
+
+In another iteration, I would turn the prototype into a functional demo with controlled data, validate the revised flows through a second testing cycle, and reduce nonessential animation on the project website. I would also add systematic keyboard, focus, and `prefers-reduced-motion` support so that the presentation itself applies the accessibility principles discussed during the HCI process.

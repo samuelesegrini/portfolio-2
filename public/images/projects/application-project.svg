@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title id="title">Concentric acid-lime shapes on a pale-blue background</title>
+  <rect width="1200" height="800" rx="48" fill="#CDEFFF"/>
+  <circle cx="770" cy="390" r="270" fill="none" stroke="#080808" stroke-width="3"/>
+  <circle cx="770" cy="390" r="180" fill="#C7FF9F" stroke="#080808" stroke-width="3"/>
+  <circle cx="770" cy="390" r="78" fill="#080808"/>
+  <path d="M120 650C260 460 390 500 520 310" fill="none" stroke="#080808" stroke-width="3"/>
+</svg>

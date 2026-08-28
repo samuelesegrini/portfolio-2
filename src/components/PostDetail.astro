@@ -1,0 +1,58 @@
+---
+import { render } from 'astro:content';
+import { findPostDocument, findProjectDocument, getPortfolioContent, postPath, projectPath, type PostDocument } from '../lib/portfolio';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from './ProjectCard.astro';
+
+interface Props { document: PostDocument }
+const { document } = Astro.props;
+const post = document.data;
+const { projectDocuments, postDocuments } = await getPortfolioContent();
+const otherLocale = post.locale === 'it' ? 'en' : 'it';
+const translation = findPostDocument(postDocuments, post.translationKey, otherLocale);
+if (!translation) throw new Error(`Missing translation for post ${post.translationKey}`);
+const relatedProject = post.relatedProjectKey
+	? findProjectDocument(projectDocuments, post.relatedProjectKey, post.locale)
+	: undefined;
+const { Content } = await render(document);
+const isIt = post.locale === 'it';
+const currentPath = postPath(post);
+const translationPath = postPath(translation.data);
+const italianPath = isIt ? currentPath : translationPath;
+const englishPath = isIt ? translationPath : currentPath;
+const formattedDate = new Intl.DateTimeFormat(isIt ? 'it-IT' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' }).format(post.publishedAt);
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'BlogPosting',
+	headline: post.title,
+	description: post.excerpt,
+	inLanguage: post.locale,
+	datePublished: post.publishedAt.toISOString(),
+	dateModified: (post.updatedAt ?? post.publishedAt).toISOString(),
+	url: currentPath,
+};
+---
+
+<BaseLayout
+	lang={post.locale}
+	title={post.seoTitle ?? `${post.title} — Writing`}
+	description={post.seoDescription ?? post.excerpt}
+	translationURL={translationPath}
+	canonicalPath={currentPath}
+	alternateIt={italianPath}
+	alternateEn={englishPath}
+	ogType="article"
+	structuredData={structuredData}
+>
+	<article class="article-page">
+		<header class="article-hero dark-section">
+			<a class="back-link" href={isIt ? '/it/articoli/' : '/en/writing/'}>← {isIt ? 'Tutti gli articoli' : 'All writing'}</a>
+			<p class="eyebrow">{post.tags.join(' · ')}</p>
+			<h1>{post.title}</h1>
+			<p class="article-excerpt">{post.excerpt}</p>
+			<time datetime={post.publishedAt.toISOString()}>{formattedDate}</time>
+		</header>
+		<div class="prose article-prose"><Content /></div>
+	</article>
+	{relatedProject && <section class="section related-work"><div class="section-heading"><div><p class="eyebrow dark">{isIt ? 'Dal progetto' : 'From the project'}</p><h2>{isIt ? 'Lavoro collegato' : 'Related work'}</h2></div></div><div class="project-grid single"><ProjectCard rank={1} title={relatedProject.data.title} excerpt={relatedProject.data.excerpt} kind={relatedProject.data.kind} year={relatedProject.data.year} href={projectPath(relatedProject.data)} tone="lime" coverImage={relatedProject.data.coverImage} coverAlt={relatedProject.data.coverAlt} /></div></section>}
+</BaseLayout>

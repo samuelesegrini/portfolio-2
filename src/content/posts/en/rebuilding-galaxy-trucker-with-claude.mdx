@@ -1,0 +1,112 @@
+---
+translationKey: rebuilding-galaxy-trucker-with-claude
+locale: en
+slug: rebuilding-galaxy-trucker-with-claude
+title: "Rebuilding Galaxy Trucker with Claude: what changed, what didn't, and how to measure it"
+excerpt: A reflection on using an AI agent to reconstruct a distributed Java project, the architectural decisions that converged or diverged, and the limits of calling the result faster.
+draft: false
+coverImage: /images/projects/interface-experiment.svg
+coverAlt: Abstract geometric composition representing two implementations compared against the same specification
+seoTitle: Rebuilding Galaxy Trucker with Claude — An AI-assisted engineering experiment
+seoDescription: What an AI-assisted reconstruction of a distributed Java game revealed about architecture, specifications, verification, and measuring development speed.
+publishedAt: 2026-08-27
+tags:
+  - Java
+  - Software architecture
+  - AI-assisted development
+relatedProjectKey: galaxy-trucker
+---
+
+> I returned to a completed university project with a deliberately uncomfortable question: if Claude received the same requirements, could it rebuild the system faster without losing the reasoning behind the team's decisions?
+>
+> The answer is more useful than a simple yes. Claude accelerated implementation and made some architectural alternatives cheaper to explore. It did not remove the need to define correctness, choose trade-offs, or verify that a plausible solution actually represented the game.
+
+## The question behind the rebuild
+
+The original Galaxy Trucker project was developed by four people under an academic deadline. It implemented a stateful board game as a distributed Java system with MVC, Socket and RMI transports, TUI and JavaFX clients, complete level II rules, test flight, and simultaneous games.
+
+After the course, I wanted to use the same scope as a concrete benchmark for AI-assisted engineering. The project was large enough to include domain modelling, networking, concurrency, interfaces, persistence, and documentation. More importantly, I already understood the problem well enough to recognize when generated code was merely convincing rather than correct.
+
+The experiment had two related questions:
+
+- could an agent turn an extensive specification into working increments faster than the original process;
+- would its architectural choices preserve the intent of decisions made by the team, or expose better alternatives?
+
+## What the experiment actually allowed
+
+This was not a blind comparison. The rebuild lived in the same repository, and Claude could work with the published requirements, game rules, existing documentation, and repository context. Those inputs constrained the result and could reveal some earlier decisions directly.
+
+I therefore describe the work as an **AI-assisted reconstruction**, not as evidence that a model independently rediscovered the team's architecture. The meaningful observation is how an agent used explicit constraints and how much human intervention was still needed to turn its output into a coherent system.
+
+The comparison also lacked a frozen experimental protocol. I did not record every prompt, separate active human time from model execution time, or implement the same milestone again without AI. Any claim that the rebuild was faster is consequently an engineering observation, not a controlled measurement.
+
+## Requirements as the contract
+
+The most effective decision was to treat the requirements as a verification surface rather than background reading. The rebuild started by rewriting them as checkable statements and ordering the work into milestones whose exit criteria could be demonstrated independently.
+
+Game data and rules came before networking. Ship construction came before flight. The complete headless model came before either interface. Protocol, transports, TUI, GUI, and advanced lifecycle behaviour were layered only after the things they depended on had tests.
+
+This ordering did more than help Claude. It reduced the number of simultaneously plausible interpretations. When a milestone had a concrete exit criterion, generated code could be judged against behaviour instead of style or confidence.
+
+## Where the designs converged
+
+Several high-level choices remained stable because they followed directly from the problem:
+
+- **MVC and a server-authoritative model.** Clients display and request; the server decides. A client cannot become correct by trusting its own interpretation of the rules.
+- **Socket and RMI behind the same transport role.** The controller should not care how a command reached the server, and players using different transports must share one game.
+- **A local client projection.** Both TUI and GUI need the same view of state without acquiring authority over the model.
+- **Explicit game phases.** Lobby, construction, validation, crew placement, flight, and scoring impose different legal actions and are easier to reason about as states than as scattered conditionals.
+
+This convergence was not surprising, but it was informative. Good requirements narrow architecture without prescribing class diagrams. Different implementations can still arrive at the same system shape because the alternatives make correctness harder.
+
+## Where the rebuild changed the structure
+
+The largest differences appeared below that system shape.
+
+The rebuild uses closed command and event families with immutable projections instead of sending model objects to clients. Each game processes commands through a serialized queue, giving the domain single-threaded semantics even while multiple network connections are active. Reconnecting clients receive a complete current view, so correctness does not depend on replaying every incremental event perfectly.
+
+The ship became a deeper module: callers ask it to place, validate, calculate attributes, or apply damage instead of navigating its grid and reproducing rules outside it. Adventure cards moved away from a large visitor toward card-specific resolution state machines, keeping decisions and prompts near the behaviour that owns them.
+
+These changes were not valuable because Claude proposed something different. They were valuable when they reduced the interface a caller had to understand, concentrated invariants, and made a rule testable without a network or UI.
+
+## What Claude made faster
+
+Claude was most effective when the target was explicit and verification was cheap. It could scaffold repeated protocol types, translate rule tables into tests, search call sites during refactors, maintain milestone documentation, and propose several implementations of a well-defined seam without the setup cost that usually discourages comparison.
+
+It also shortened the loop between a design question and executable evidence. An architectural idea could be represented in code, compiled, and challenged by tests before too much attachment formed around it.
+
+That speed depended on locality. When rules were concentrated behind a narrow interface, the agent could change one implementation and verify many callers. When responsibilities were distributed across controllers, views, and mutable messages, it spent more effort discovering implicit knowledge and was more likely to produce a locally sensible but globally inconsistent change.
+
+## Where human work remained expensive
+
+The difficult work was rarely typing Java. It was deciding what a requirement meant when the manual, academic specification, and existing behaviour left room for interpretation.
+
+Human review remained necessary to distinguish a transport failure from an uncertain game mutation, decide what information a client was allowed to know, reject retries that could duplicate an action, and recognize when a passing test covered only the implementation Claude had just written rather than the rule itself.
+
+Scope also remained a human responsibility. An agent can continue deepening a system indefinitely. Someone still has to decide whether persistence, reconnection behaviour, documentation, or another refactor belongs to the experiment and what evidence is sufficient to stop.
+
+## Why the comparison is not a benchmark
+
+The original and reconstructed projects were produced under different conditions. The team divided work among four people, learned the domain while implementing it, and integrated under a course deadline. The rebuild benefited from hindsight, better documentation, modern agent tooling, and my knowledge of earlier failures.
+
+Their scopes also differ. The reconstruction added stronger disconnection handling and persistence, while restructuring areas that the original submission had already made playable. Comparing commit counts or calendar duration would hide those differences rather than measure productivity.
+
+The honest result is qualitative: Claude made the implementation loop faster, especially where requirements and tests were precise. The experiment does not establish how much faster, nor that the same result would generalize to an unfamiliar domain.
+
+## How I would measure it next time
+
+I would define the protocol before either implementation began:
+
+1. Freeze the inputs available to the agent: requirements only, requirements plus architecture documents, or the complete original source.
+2. Define a decision rubric covering correctness, interface size, coupling, failure semantics, testability, and documentation.
+3. Record wall-clock model time, active human implementation time, review time, failed attempts, and defects discovered after each milestone.
+4. Use the same acceptance suite for an AI-assisted run and a human baseline, while keeping evaluators blind to which implementation they are reviewing where possible.
+5. Publish disagreements and regressions, not only the successful generated output.
+
+That design would not turn software engineering into a perfectly controlled laboratory experiment, but it would separate acceleration from shifted review cost and architectural quality from mere completion.
+
+## The useful conclusion
+
+The reconstruction did not prove that Claude could replace the original team or reproduce its thinking. It showed that an agent can move quickly through a large, documented system when a person supplies constraints, sequencing, and judgment.
+
+The strongest multiplier was not the model alone. It was the combination of a normative specification, small verifiable milestones, narrow interfaces, and a reviewer who understood the domain well enough to challenge an answer that merely looked finished.

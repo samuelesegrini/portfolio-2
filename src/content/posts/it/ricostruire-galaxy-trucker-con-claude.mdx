@@ -1,0 +1,112 @@
+---
+translationKey: rebuilding-galaxy-trucker-with-claude
+locale: it
+slug: ricostruire-galaxy-trucker-con-claude
+title: "Ricostruire Galaxy Trucker con Claude: cosa è cambiato, cosa no e come misurarlo"
+excerpt: Una riflessione sull'uso di un agente AI per ricostruire un progetto Java distribuito, sulle decisioni architetturali convergenti o divergenti e sui limiti del definirlo più veloce.
+draft: false
+coverImage: /images/projects/interface-experiment.svg
+coverAlt: Composizione geometrica astratta che rappresenta due implementazioni confrontate sulla stessa specifica
+seoTitle: Ricostruire Galaxy Trucker con Claude — Un esperimento di sviluppo assistito da AI
+seoDescription: Cosa ha mostrato la ricostruzione assistita da AI di un gioco Java distribuito su architettura, specifiche, verifica e misurazione della velocità.
+publishedAt: 2026-08-27
+tags:
+  - Java
+  - Software architecture
+  - AI-assisted development
+relatedProjectKey: galaxy-trucker
+---
+
+> Sono tornato su un progetto universitario completato con una domanda volutamente scomoda: se Claude avesse ricevuto gli stessi requisiti, avrebbe potuto ricostruire il sistema più velocemente senza perdere il ragionamento dietro le decisioni del team?
+>
+> La risposta è più utile di un semplice sì. Claude ha accelerato l'implementazione e reso meno costoso esplorare alternative architetturali. Non ha eliminato la necessità di definire la correttezza, scegliere i compromessi o verificare che una soluzione plausibile rappresentasse davvero il gioco.
+
+## La domanda dietro la ricostruzione
+
+Il progetto originale Galaxy Trucker è stato sviluppato da quattro persone entro una scadenza accademica. Implementava un gioco da tavolo basato sullo stato come sistema Java distribuito con MVC, trasporti Socket e RMI, client TUI e JavaFX, regole complete di livello II, volo di prova e partite simultanee.
+
+Dopo il corso volevo usare lo stesso perimetro come riferimento concreto per lo sviluppo assistito da AI. Il progetto era abbastanza ampio da includere modellazione del dominio, rete, concorrenza, interfacce, persistenza e documentazione. Soprattutto, conoscevo il problema abbastanza bene da riconoscere quando il codice generato era soltanto convincente invece che corretto.
+
+L'esperimento conteneva due domande collegate:
+
+- un agente poteva trasformare una specifica estesa in incrementi funzionanti più rapidamente del processo originale;
+- le sue scelte architetturali avrebbero conservato l'intento delle decisioni del team oppure mostrato alternative migliori?
+
+## Cosa permetteva realmente l'esperimento
+
+Non si trattava di un confronto cieco. La ricostruzione viveva nello stesso repository e Claude poteva lavorare con requisiti pubblicati, regole del gioco, documentazione esistente e contesto del codice. Questi input vincolavano il risultato e potevano rivelare direttamente alcune decisioni precedenti.
+
+Descrivo quindi il lavoro come **ricostruzione assistita da AI**, non come prova che un modello abbia riscoperto autonomamente l'architettura del team. L'osservazione significativa riguarda il modo in cui un agente ha usato vincoli espliciti e quanto intervento umano sia rimasto necessario per trasformare il suo output in un sistema coerente.
+
+Il confronto non aveva nemmeno un protocollo sperimentale congelato. Non ho registrato ogni prompt, separato il tempo umano attivo dal tempo di esecuzione del modello o implementato la stessa milestone una seconda volta senza AI. Qualsiasi affermazione sulla maggiore velocità del rebuild è quindi un'osservazione ingegneristica, non una misurazione controllata.
+
+## I requisiti come contratto
+
+La decisione più efficace è stata trattare i requisiti come superficie di verifica invece che come lettura di contesto. La ricostruzione è iniziata riscrivendoli come affermazioni controllabili e ordinando il lavoro in milestone con criteri di uscita dimostrabili indipendentemente.
+
+Dati e regole venivano prima della rete. La costruzione della nave precedeva il volo. Il modello headless completo veniva prima di entrambe le interfacce. Protocollo, trasporti, TUI, GUI e comportamento avanzato del ciclo di vita sono stati aggiunti soltanto dopo aver verificato ciò da cui dipendevano.
+
+Questo ordinamento non ha aiutato soltanto Claude. Ha ridotto il numero di interpretazioni contemporaneamente plausibili. Quando una milestone aveva un criterio di uscita concreto, il codice generato poteva essere giudicato sul comportamento invece che sullo stile o sulla sicurezza con cui veniva presentato.
+
+## Dove i design sono convergenti
+
+Alcune scelte ad alto livello sono rimaste stabili perché derivavano direttamente dal problema:
+
+- **MVC e modello autorevole sul server.** I client mostrano e richiedono; il server decide. Un client non può diventare corretto fidandosi della propria interpretazione delle regole.
+- **Socket e RMI dietro lo stesso ruolo di trasporto.** Il controller non deve sapere come un comando abbia raggiunto il server e giocatori con trasporti diversi devono condividere la stessa partita.
+- **Una proiezione locale sul client.** TUI e GUI hanno bisogno della stessa vista dello stato senza acquisire autorità sul modello.
+- **Fasi di gioco esplicite.** Lobby, costruzione, validazione, posizionamento dell'equipaggio, volo e punteggio ammettono azioni diverse e sono più comprensibili come stati che come condizioni disperse.
+
+Questa convergenza non era sorprendente, ma era informativa. Buoni requisiti restringono l'architettura senza prescrivere diagrammi delle classi. Implementazioni diverse possono raggiungere la stessa forma di sistema perché le alternative rendono più difficile garantire la correttezza.
+
+## Dove la ricostruzione ha cambiato struttura
+
+Le differenze maggiori sono apparse al di sotto di quella forma generale.
+
+La ricostruzione usa famiglie chiuse di comandi ed eventi con proiezioni immutabili invece di inviare oggetti del modello ai client. Ogni partita elabora i comandi attraverso una coda serializzata, offrendo al dominio una semantica single-thread anche con più connessioni di rete attive. I client che si riconnettono ricevono una vista completa dello stato corrente, così la correttezza non dipende dalla riproduzione perfetta di ogni aggiornamento incrementale.
+
+La nave è diventata un modulo più profondo: i chiamanti le chiedono di posizionare, validare, calcolare attributi o applicare danni invece di attraversarne la griglia e riprodurre regole all'esterno. Le carte avventura sono passate da un visitor esteso a macchine a stati specifiche per la risoluzione, mantenendo decisioni e richieste vicino al comportamento che le possiede.
+
+Questi cambiamenti non erano utili perché Claude avesse proposto qualcosa di diverso. Lo diventavano quando riducevano l'interfaccia che un chiamante doveva conoscere, concentravano gli invarianti e rendevano una regola verificabile senza rete o interfaccia utente.
+
+## Cosa ha reso più veloce Claude
+
+Claude è stato più efficace quando l'obiettivo era esplicito e la verifica poco costosa. Poteva impostare tipi di protocollo ripetitivi, trasformare tabelle di regole in test, cercare i chiamanti durante i refactor, mantenere la documentazione delle milestone e proporre più implementazioni dello stesso punto di variazione senza il costo iniziale che normalmente scoraggia il confronto.
+
+Ha anche accorciato il ciclo tra una domanda di design e una prova eseguibile. Un'idea architetturale poteva essere rappresentata nel codice, compilata e messa in discussione dai test prima che si creasse troppo attaccamento verso di essa.
+
+Quella velocità dipendeva dalla località. Quando le regole erano concentrate dietro un'interfaccia stretta, l'agente poteva modificare un'implementazione e verificare molti chiamanti. Quando le responsabilità erano distribuite tra controller, viste e messaggi mutabili, impiegava più tempo a scoprire conoscenza implicita ed era più incline a produrre una modifica sensata localmente ma incoerente nel sistema.
+
+## Dove il lavoro umano è rimasto costoso
+
+Il lavoro difficile raramente consisteva nello scrivere Java. Consisteva nel decidere cosa significasse un requisito quando manuale, specifica accademica e comportamento esistente lasciavano spazio all'interpretazione.
+
+La review umana restava necessaria per distinguere un errore di trasporto da una mutazione dall'esito incerto, decidere quali informazioni un client potesse conoscere, rifiutare retry capaci di duplicare un'azione e riconoscere quando un test verificava soltanto l'implementazione appena scritta da Claude invece della regola stessa.
+
+Anche il perimetro restava una responsabilità umana. Un agente può continuare ad approfondire un sistema indefinitamente. Qualcuno deve ancora decidere se persistenza, riconnessione, documentazione o un altro refactor appartengano all'esperimento e quali prove siano sufficienti per fermarsi.
+
+## Perché il confronto non è un benchmark
+
+Il progetto originale e quello ricostruito sono nati in condizioni diverse. Il team ha diviso il lavoro tra quattro persone, imparato il dominio durante l'implementazione e integrato entro la scadenza del corso. Il rebuild ha beneficiato del senno di poi, di una documentazione migliore, di strumenti agentici moderni e della mia conoscenza degli errori precedenti.
+
+Anche i perimetri differiscono. La ricostruzione ha aggiunto una gestione più robusta delle disconnessioni e la persistenza, ristrutturando allo stesso tempo aree che la submission originale aveva già reso giocabili. Confrontare numero di commit o durata sul calendario nasconderebbe queste differenze invece di misurare la produttività.
+
+Il risultato onesto è qualitativo: Claude ha reso più rapido il ciclo di implementazione, soprattutto dove requisiti e test erano precisi. L'esperimento non stabilisce quanto sia stato più rapido né se lo stesso risultato si generalizzerebbe a un dominio sconosciuto.
+
+## Come lo misurerei la prossima volta
+
+Definirei il protocollo prima di iniziare entrambe le implementazioni:
+
+1. Congelare gli input disponibili all'agente: solo requisiti, requisiti e documenti architetturali oppure l'intero sorgente originale.
+2. Definire una griglia decisionale su correttezza, dimensione delle interfacce, accoppiamento, semantica degli errori, testabilità e documentazione.
+3. Registrare tempo di esecuzione del modello, tempo umano attivo di implementazione, tempo di review, tentativi falliti e difetti scoperti dopo ogni milestone.
+4. Usare la stessa suite di accettazione per un'esecuzione assistita da AI e una baseline umana, mantenendo quando possibile i valutatori all'oscuro dell'origine dell'implementazione.
+5. Pubblicare disaccordi e regressioni, non soltanto l'output generato con successo.
+
+Questo design non trasformerebbe l'ingegneria del software in un esperimento di laboratorio perfettamente controllato, ma separerebbe l'accelerazione dal costo di review spostato e la qualità architetturale dal semplice completamento.
+
+## La conclusione utile
+
+La ricostruzione non ha dimostrato che Claude potesse sostituire il team originale o riprodurne il pensiero. Ha mostrato che un agente può attraversare rapidamente un sistema ampio e documentato quando una persona fornisce vincoli, sequenza e giudizio.
+
+Il moltiplicatore più forte non era soltanto il modello. Era la combinazione di specifica normativa, milestone piccole e verificabili, interfacce strette e un reviewer che conosceva il dominio abbastanza bene da mettere in discussione una risposta che sembrava semplicemente finita.

@@ -1,0 +1,206 @@
+import { describe, expect, test } from 'vitest';
+import {
+	getFeaturedProjects,
+	getProjectKinds,
+	getPublishedPosts,
+	getTranslationPair,
+	validateContentSet,
+	type PostEntry,
+	type ProjectEntry,
+} from './content';
+
+const projects = [
+	{
+		translationKey: 'project-one',
+		locale: 'it',
+		slug: 'progetto-uno',
+		title: 'Progetto uno',
+		excerpt: 'Descrizione italiana.',
+		draft: false,
+		coverImage: '/images/placeholders/project-one.png',
+		coverAlt: 'Composizione astratta verde',
+		kind: 'app',
+		year: 2026,
+		role: 'Software Engineer',
+		technologies: ['Swift'],
+		featuredRank: 1,
+		relatedPostKeys: ['post-one'],
+	},
+	{
+		translationKey: 'project-one',
+		locale: 'en',
+		slug: 'project-one',
+		title: 'Project one',
+		excerpt: 'English description.',
+		draft: false,
+		coverImage: '/images/placeholders/project-one.png',
+		coverAlt: 'Abstract green composition',
+		kind: 'app',
+		year: 2026,
+		role: 'Software Engineer',
+		technologies: ['Swift'],
+		featuredRank: 1,
+		relatedPostKeys: ['post-one'],
+	},
+	...(['two', 'three'] as const).flatMap<ProjectEntry>((name, index) => [
+		{
+			translationKey: `project-${name}`,
+			locale: 'it',
+			slug: `progetto-${name}`,
+			title: `Progetto ${name}`,
+			excerpt: 'Descrizione italiana.',
+			draft: false,
+			coverImage: `/images/placeholders/project-${name}.png`,
+			coverAlt: 'Composizione astratta',
+			kind: index === 0 ? 'package' : 'experiment',
+			year: 2026,
+			role: 'Software Engineer',
+			technologies: ['TypeScript'],
+			featuredRank: (index + 2) as 2 | 3,
+			relatedPostKeys: [],
+		},
+		{
+			translationKey: `project-${name}`,
+			locale: 'en',
+			slug: `project-${name}`,
+			title: `Project ${name}`,
+			excerpt: 'English description.',
+			draft: false,
+			coverImage: `/images/placeholders/project-${name}.png`,
+			coverAlt: 'Abstract composition',
+			kind: index === 0 ? 'package' : 'experiment',
+			year: 2026,
+			role: 'Software Engineer',
+			technologies: ['TypeScript'],
+			featuredRank: (index + 2) as 2 | 3,
+			relatedPostKeys: [],
+		},
+	]),
+] satisfies readonly ProjectEntry[];
+
+const posts = [
+	{
+		translationKey: 'post-one',
+		locale: 'it',
+		slug: 'nota-uno',
+		title: 'Nota uno',
+		excerpt: 'Descrizione italiana.',
+		draft: false,
+		coverImage: '/images/placeholders/post-one.png',
+		coverAlt: 'Composizione editoriale',
+		publishedAt: new Date('2026-08-20'),
+		tags: ['Swift'],
+		relatedProjectKey: 'project-one',
+	},
+	{
+		translationKey: 'post-one',
+		locale: 'en',
+		slug: 'note-one',
+		title: 'Note one',
+		excerpt: 'English description.',
+		draft: false,
+		coverImage: '/images/placeholders/post-one.png',
+		coverAlt: 'Editorial composition',
+		publishedAt: new Date('2026-08-20'),
+		tags: ['Swift'],
+		relatedProjectKey: 'project-one',
+	},
+] satisfies readonly PostEntry[];
+
+describe('validateContentSet', () => {
+	test('accepts complete bilingual content with exactly three featured projects', () => {
+		expect(validateContentSet(projects, posts)).toEqual([]);
+	});
+
+	test('rejects a published entry without its translation', () => {
+		const italianProjects = projects.filter((project) => project.locale === 'it');
+		expect(validateContentSet(italianProjects, posts)).toContain(
+			'Project "project-one" must have published it and en translations.',
+		);
+	});
+
+	test('rejects shared project metadata that differs between translations', () => {
+		const mismatched = projects.map((project) =>
+			project.translationKey === 'project-one' && project.locale === 'en'
+				? { ...project, year: 2025 }
+				: project,
+		);
+		expect(validateContentSet(mismatched, posts)).toContain(
+			'Project "project-one" must share kind, year, technologies, rank, and relationships.',
+		);
+	});
+
+	test('rejects shared post metadata that differs between translations', () => {
+		const mismatched = posts.map((post) =>
+			post.locale === 'en' ? { ...post, publishedAt: new Date('2026-08-19') } : post,
+		);
+		expect(validateContentSet(projects, mismatched)).toContain(
+			'Post "post-one" must share publication dates, tags, and project relationship.',
+		);
+	});
+
+	test('rejects related-content keys that do not resolve to published bilingual content', () => {
+		const brokenProjects = projects.map((project) =>
+			project.translationKey === 'project-one'
+				? { ...project, relatedPostKeys: ['missing-post'] }
+				: project,
+		);
+		expect(validateContentSet(brokenProjects, posts)).toContain(
+			'Project "project-one" references missing published post "missing-post".',
+		);
+	});
+
+	test('rejects duplicate localized slugs', () => {
+		const duplicated = projects.map((project) =>
+			project.translationKey === 'project-two' && project.locale === 'en'
+				? { ...project, slug: 'project-one' }
+				: project,
+		);
+		expect(validateContentSet(duplicated, posts)).toContain(
+			'Project slug "en/project-one" must be unique.',
+		);
+	});
+
+	test('rejects blank image alternatives and malformed project links', () => {
+		const malformed = projects.map((project) =>
+			project.translationKey === 'project-one' && project.locale === 'it'
+				? { ...project, coverAlt: ' ', liveURL: 'not-a-url' }
+				: project,
+		);
+		const errors = validateContentSet(malformed, posts);
+		expect(errors).toContain('Project "project-one" requires cover alternative text.');
+		expect(errors).toContain('Project "project-one" contains an invalid external URL.');
+	});
+
+	test('rejects missing or duplicated featured ranks per locale', () => {
+		const missingRank = projects.map((project) =>
+			project.translationKey === 'project-three' ? { ...project, featuredRank: undefined } : project,
+		);
+		expect(validateContentSet(missingRank, posts)).toContain(
+			'Locale "it" must contain featured project ranks 1, 2, and 3 exactly once.',
+		);
+	});
+});
+
+describe('content queries', () => {
+	test('returns the requested localized translation', () => {
+		expect(getTranslationPair(posts, 'post-one', 'en')?.slug).toBe('note-one');
+	});
+
+	test('sorts featured projects by rank and excludes other locales', () => {
+		expect(getFeaturedProjects(projects, 'it').map((project) => project.featuredRank)).toEqual([
+			1, 2, 3,
+		]);
+	});
+
+	test('sorts published posts newest first and excludes drafts', () => {
+		const draft = { ...posts[0], translationKey: 'draft', slug: 'draft', draft: true };
+		expect(getPublishedPosts([...posts, draft], 'it').map((post) => post.slug)).toEqual([
+			'nota-uno',
+		]);
+	});
+
+	test('derives only project kinds represented in a locale', () => {
+		expect(getProjectKinds(projects, 'en')).toEqual(['app', 'package', 'experiment']);
+	});
+});

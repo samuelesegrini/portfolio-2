@@ -1,0 +1,82 @@
+---
+translationKey: my-first-video-game
+locale: en
+slug: my-first-video-game-was-a-distributed-system
+title: My first video game was a distributed system
+excerpt: I expected my first game project to be about rules and interfaces. It taught me instead how much invisible work is required before several players can share the same world.
+draft: false
+coverImage: /images/projects/application-project.svg
+coverAlt: Abstract composition representing several players connected to the same game
+seoTitle: My first video game was a distributed system
+seoDescription: A personal reflection on learning Java, collaboration, networking, and software engineering while building a multiplayer Galaxy Trucker adaptation.
+publishedAt: 2026-08-27
+tags:
+  - Java
+  - Distributed systems
+  - Personal experience
+relatedProjectKey: galaxy-trucker
+---
+
+> When I started working on Galaxy Trucker, I imagined that building a video game meant implementing rules, drawing an interface, and eventually watching something respond on screen. Before the game could exist, however, we had to solve a less visible problem: making several people inhabit the same match without letting their clients disagree about what was real.
+>
+> It was my first complete game project and one of the experiences that turned Java from a language I was learning into a medium for building a system with other people.
+
+## The game I imagined
+
+Galaxy Trucker looked like an approachable starting point because its world already existed. We did not need to invent characters, levels, or a combat system. There was a board, a rulebook, a finite set of components, and a clear sequence: build a ship, launch it, survive the cards, calculate a score.
+
+That apparent clarity was misleading. A physical game relies on people to remember context, resolve ambiguity, and correct each other. Software has to represent every one of those assumptions explicitly. It must know which phase the match is in, which actions are legal, what each player may see, and what happens when two requests arrive almost together.
+
+The first lesson of my first video game was therefore that rules do not become software by being copied into methods. They become state, transitions, messages, validation, and failure cases.
+
+## Before the screen came the system
+
+At the beginning I associated a game mainly with what a player could see. Much of my work ended up living behind that surface: authentication, game sessions, command dispatch, RMI, heartbeat handling, event propagation, and the coordination of multiple matches.
+
+None of those areas makes an impressive screenshot. Without them, however, a graphical ship is only a local drawing. A placement becomes part of a multiplayer game only when the client expresses an intention, the server validates and applies it, and every affected player receives a coherent new state.
+
+Looking back, that complete loop is the threshold I use to distinguish an interface demonstration from a game. A button changing its own screen is interaction. A decision surviving the network and becoming shared reality is a system.
+
+## When Java stopped being an exercise
+
+Java was no longer a collection of isolated classes with an expected output. The language became the place where decisions made in different parts of the project met each other.
+
+An interface could separate Socket from RMI, but only if both implementations agreed on the same behaviour. An object could be correct in memory and still fail when serialization crossed the network. An event could compile, arrive, and remain wrong because the client interpreted it against stale state.
+
+This changed what learning a language meant to me. Syntax and object-oriented concepts were necessary, but they were the inexpensive part. The harder skill was maintaining an invariant across packages, processes, and code written by different people.
+
+## Four people, one match
+
+The project was also the first time the codebase stopped feeling like a collection of individual assignments. My work on messages or lifecycle controllers affected views and model behaviour owned by somebody else; their decisions changed the assumptions inside my code.
+
+That made integration uncomfortable and valuable. A feature could work alone and still fail in the complete application. Fixing it required understanding enough of another person's area to discuss the contract between us without simply taking it over.
+
+I began to see interfaces differently. They were not just a Java keyword or a way to satisfy a design-pattern requirement. They were agreements between people working at different points in the same flow. When those agreements were vague, the uncertainty reappeared as duplicated state, defensive conditionals, or bugs close to the deadline.
+
+## A rulebook is not an executable specification
+
+Board-game rules are written for humans who can infer intention. Code needs a decision for every boundary. What happens if a player disconnects while the game is waiting for them? Which information about another ship is public? Can the same command be received twice? Which event makes a client authoritative enough to draw the next screen?
+
+The difficult bugs were rarely contained in one obvious method. They appeared where a rule crossed layers: from model to controller, from controller to message, from message to client state, and finally to the interface.
+
+That experience left me with a habit I still value: when behaviour matters, write down the invariant and identify where it is enforced. If the answer is “in several places,” the design is asking for trouble.
+
+## Finishing and being finished
+
+We reached the course submission with the required game, two transports, two interfaces, and the advanced features we had selected. Under that definition, the project was finished.
+
+The archived source also contains a client compilation defect. Today I would not describe a build in that condition as release-ready. Both statements can be true: the team completed the academic product, and the repository does not currently offer a reproducible clean build.
+
+My first instinct was to repair the defect before presenting the project. I eventually decided that changing the shared artifact would make the story cleaner but less accurate. The limitation now remains visible in the project case study, next to the scope we actually delivered.
+
+## Returning to the first game
+
+Coming back to Galaxy Trucker later with Claude gave me enough distance to separate accidental complexity from constraints that were genuinely difficult. Some original choices looked rough because they were made under pressure. Others existed because hidden information, simultaneous players, two transports, and a stateful rulebook really do create hard problems.
+
+The AI-assisted reconstruction did not replace the first project. It let me revisit it with stronger criteria for module interfaces, failure semantics, testing, and completion. I discuss that experiment separately in [Rebuilding Galaxy Trucker with Claude: what changed, what didn't, and how to measure it](/en/writing/rebuilding-galaxy-trucker-with-claude/).
+
+## What my first video game left me
+
+My first video game taught me less about making objects move on a screen than I expected. It taught me how many promises have to hold before a screen can tell the truth.
+
+A multiplayer game promises that every player is participating in the same match. Keeping that promise required Java, networking, domain modelling, interfaces, tests, and four people learning how to make their decisions meet. That invisible part is now the part of the project I value most.

@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+	lang="it"
+	title="Pagina non trovata — 404"
+	description="La pagina richiesta non esiste."
+	translationURL="/en/"
+	canonicalPath="/404.html"
+	noIndex
+>
+	<section class="not-found dark-section">
+		<p class="eyebrow">404 · <span data-error-label>Pagina non trovata</span></p>
+		<h1 data-error-title>Questa strada non porta a una pagina.</h1>
+		<a class="primary-button" href="/it/" data-error-link>Torna alla home</a>
+	</section>
+</BaseLayout>
+
+<script is:inline>
+	if (window.location.pathname.startsWith('/en/')) {
+		document.documentElement.lang = 'en';
+		document.title = 'Page not found — 404';
+		document.querySelector('[data-error-label]').textContent = 'Page not found';
+		document.querySelector('[data-error-title]').textContent = 'This path does not lead to a page.';
+		const link = document.querySelector('[data-error-link]');
+		link.textContent = 'Back to home';
+		link.href = '/en/';
+	}
+</script>

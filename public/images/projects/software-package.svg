@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title id="title">Violet technical grid with a black circular element</title>
+  <rect width="1200" height="800" rx="48" fill="#DED1FF"/>
+  <g stroke="#080808" stroke-opacity=".22"><path d="M100 0v800M300 0v800M500 0v800M700 0v800M900 0v800M1100 0v800"/><path d="M0 100h1200M0 300h1200M0 500h1200M0 700h1200"/></g>
+  <circle cx="700" cy="400" r="220" fill="#080808"/>
+  <circle cx="700" cy="400" r="100" fill="#DED1FF"/>
+</svg>

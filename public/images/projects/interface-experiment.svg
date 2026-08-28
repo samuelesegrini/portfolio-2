@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title id="title">Small green geometric shapes on a cream background</title>
+  <rect width="1200" height="800" rx="48" fill="#F4F1E9"/>
+  <circle cx="290" cy="270" r="110" fill="#C7FF9F" stroke="#080808" stroke-width="3"/>
+  <rect x="520" y="160" width="230" height="230" rx="28" fill="#C7FF9F" stroke="#080808" stroke-width="3" transform="rotate(12 635 275)"/>
+  <path d="m880 160 140 250H740z" fill="#C7FF9F" stroke="#080808" stroke-width="3"/>
+  <path d="M160 600h880" stroke="#080808" stroke-width="3"/>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title">
+  <title id="title">Four heterogeneous clients send commands to one authoritative server and receive synchronized state</title>
+  <rect width="1200" height="675" rx="40" fill="#DED1FF"/>
+
+  <g fill="none" stroke="#080808" stroke-width="6" stroke-linecap="round">
+    <path d="M250 174 510 286M250 501 510 389M950 174 690 286M950 501 690 389"/>
+  </g>
+  <g fill="none" stroke="#C7FF9F" stroke-width="24" stroke-linecap="round">
+    <path d="M277 188 492 280M277 487 492 395M923 188 708 280M923 487 708 395"/>
+  </g>
+  <g fill="none" stroke="#080808" stroke-width="5" stroke-linecap="round">
+    <path d="M277 188 492 280M277 487 492 395M923 188 708 280M923 487 708 395"/>
+  </g>
+
+  <g fill="#F4F1E9" stroke="#080808" stroke-width="5">
+    <rect x="100" y="92" width="180" height="132" rx="24"/>
+    <rect x="100" y="451" width="180" height="132" rx="24"/>
+    <rect x="920" y="92" width="180" height="132" rx="24"/>
+    <rect x="920" y="451" width="180" height="132" rx="24"/>
+    <rect x="490" y="236" width="220" height="203" rx="34" fill="#080808"/>
+  </g>
+
+  <g fill="none" stroke="#080808" stroke-width="5" stroke-linecap="round">
+    <path d="M135 132h110M135 158h72M135 184h92M955 132h110M955 158h72M955 184h92"/>
+    <rect x="144" y="482" width="92" height="68" rx="10"/>
+    <circle cx="1010" cy="517" r="34"/>
+    <path d="m985 517 18 18 34-42"/>
+  </g>
+  <g fill="#C7FF9F">
+    <rect x="530" y="277" width="140" height="30" rx="10"/>
+    <rect x="530" y="323" width="140" height="30" rx="10"/>
+    <rect x="530" y="369" width="140" height="30" rx="10"/>
+  </g>
+  <g fill="#080808">
+    <path d="m450 251 42 29-50 12zM750 251l-42 29 50 12zM450 424l42-29-50-12zM750 424l-42-29 50-12z"/>
+  </g>
+</svg>

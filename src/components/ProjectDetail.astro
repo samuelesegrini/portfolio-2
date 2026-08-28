@@ -1,0 +1,70 @@
+---
+import { render } from 'astro:content';
+import { siteConfig } from '../config/site';
+import { findPostDocument, findProjectDocument, getPortfolioContent, postPath, projectPath, type ProjectDocument } from '../lib/portfolio';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from './PostCard.astro';
+
+interface Props { document: ProjectDocument }
+const { document } = Astro.props;
+const project = document.data;
+const { projectDocuments, postDocuments } = await getPortfolioContent();
+const otherLocale = project.locale === 'it' ? 'en' : 'it';
+const translation = findProjectDocument(projectDocuments, project.translationKey, otherLocale);
+if (!translation) throw new Error(`Missing translation for project ${project.translationKey}`);
+const { Content } = await render(document);
+const relatedPosts = project.relatedPostKeys
+	.map((key) => findPostDocument(postDocuments, key, project.locale))
+	.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+const isIt = project.locale === 'it';
+const currentPath = projectPath(project);
+const translationPath = projectPath(translation.data);
+const italianPath = isIt ? currentPath : translationPath;
+const englishPath = isIt ? translationPath : currentPath;
+const kindLabel = isIt
+	? { app: 'App', package: 'Pacchetto', 'open-source': 'Open source', experiment: 'Esperimento' }[project.kind]
+	: { app: 'App', package: 'Package', 'open-source': 'Open source', experiment: 'Experiment' }[project.kind];
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'CreativeWork',
+	name: project.title,
+	description: project.excerpt,
+	inLanguage: project.locale,
+	dateCreated: String(project.year),
+	url: currentPath,
+};
+---
+
+<BaseLayout
+	lang={project.locale}
+	title={project.seoTitle ?? `${project.title} — Project`}
+	description={project.seoDescription ?? project.excerpt}
+	translationURL={translationPath}
+	canonicalPath={currentPath}
+	alternateIt={italianPath}
+	alternateEn={englishPath}
+	structuredData={structuredData}
+>
+	<article class="case-study">
+		<header class="detail-hero dark-section">
+			<a class="back-link" href={isIt ? '/it/progetti/' : '/en/projects/'}>← {isIt ? 'Tutti i progetti' : 'All projects'}</a>
+			<div class="detail-title"><div><p class="eyebrow">{kindLabel} · {project.year}</p><h1>{project.title}</h1></div><p>{project.excerpt}</p></div>
+			<img src={project.coverImage} alt={project.coverAlt} width="1200" height="800" />
+		</header>
+		<div class="detail-grid section">
+			<aside aria-label={isIt ? 'Dettagli del progetto' : 'Project details'}>
+				<div><span>{isIt ? 'Anno' : 'Year'}</span><strong>{project.year}</strong></div>
+				<div><span>{isIt ? 'Tipo' : 'Type'}</span><strong>{kindLabel}</strong></div>
+				<div><span>{isIt ? 'Ruolo' : 'Role'}</span><strong>{project.role}</strong></div>
+				<div><span>{isIt ? 'Tecnologie' : 'Technologies'}</span><strong>{project.technologies.join(', ')}</strong></div>
+				<div class="project-actions">
+					{project.repositoryURL && <a class="primary-button project-repository" href={project.repositoryURL} target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>}
+					{project.liveURL && <a href={project.liveURL} target="_blank" rel="noreferrer">{isIt ? 'Visita il progetto' : 'Visit project'} <span aria-hidden="true">↗</span></a>}
+					<a class:list={['project-contact', { 'primary-button': !project.repositoryURL }]} href={`mailto:${siteConfig.email}`}>{isIt ? 'Parliamone' : "Let's talk"} <span aria-hidden="true">↗</span></a>
+				</div>
+			</aside>
+			<div class="prose"><Content /></div>
+		</div>
+	</article>
+	{relatedPosts.length > 0 && <section class="section related-section dark-section"><div class="section-heading"><div><p class="eyebrow">{isIt ? 'Approfondimenti' : 'Go deeper'}</p><h2>{isIt ? 'Articoli collegati' : 'Related writing'}</h2></div></div><div class="post-grid">{relatedPosts.map(({ data }) => <PostCard title={data.title} excerpt={data.excerpt} href={postPath(data)} date={data.publishedAt} tags={data.tags} lang={project.locale} />)}</div></section>}
+</BaseLayout>

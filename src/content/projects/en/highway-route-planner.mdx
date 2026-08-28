@@ -1,0 +1,100 @@
+---
+translationKey: highway-route-planner
+locale: en
+slug: highway-route-planner
+title: Highway Route Planner
+excerpt: A C program that manages service stations and electric vehicles, then plans the route with the fewest stops in either direction along the highway.
+draft: false
+coverImage: /images/projects/highway-route-planner.svg
+coverAlt: Geometric diagram of an optimal route skipping unnecessary stations
+seoTitle: Highway Route Planner — C project
+seoDescription: Case study of an individual C project for managing service stations and planning routes with the fewest stops.
+kind: app
+year: 2023
+role: Solo developer
+technologies:
+  - C
+  - Dynamic memory
+  - Binary search
+featuredRank: 1
+relatedPostKeys: []
+---
+
+> An individual project developed for the 2022–2023 Algorithms and Data Structures final assignment. The program maintains a mutable highway, manages electric-vehicle fleets, and computes valid journeys in either direction.
+>
+> The main difficulty was not only finding the fewest stops: the solution also had to enforce a precise preference rule between tied routes while remaining correct after stations and vehicles were inserted or removed.
+
+## From specification to problem
+
+The specification models a highway as a sequence of service stations. Each station is uniquely identified by its distance from the beginning of the highway and provides a fleet of electric vehicles. Every vehicle has its own driving range and can only reach stations within that distance.
+
+The system must support data that changes over time: a station can be built or demolished, while vehicles can be added or scrapped. The program then plans journeys between existing stations using the current state of the highway.
+
+The constraints make route planning more involved than checking a single distance:
+
+- a journey cannot reverse direction;
+- a new vehicle is rented at every stop;
+- each station can hold up to 512 vehicles with different ranges;
+- the route must use the fewest possible stops;
+- tied routes must follow the preference order defined by the specification.
+
+The result is not only a path-finding algorithm. It is a small mutable system that must keep stations, fleets, and subsequent requests consistent.
+
+## Data model
+
+I modelled a vehicle through its driving range and a station through three pieces of information: distance, vehicle count, and a pointer to the fleet array. The highway itself is a dynamic array of stations kept in ascending distance order.
+
+This ordering is the structure’s main invariant. It allows `findStationIndexByDistance` to use binary search instead of scanning every station. The same order also makes it natural to traverse the highway from left to right or from right to left during route planning.
+
+Each station owns a copy of its fleet. Insertions and removals therefore operate on two levels of dynamic memory: the station array and the vehicle arrays belonging to individual stations.
+
+## Command handling
+
+The program reads a sequence of commands from `input.txt` and writes responses to `output.txt`. The required interface contains five operations:
+
+- `aggiungi-stazione` inserts a station in sorted position and copies its initial fleet;
+- `demolisci-stazione` releases the associated fleet and compacts the station array;
+- `aggiungi-auto` resizes a fleet and appends a new driving range;
+- `rottama-auto` finds a matching vehicle, removes it, and compacts the array;
+- `pianifica-percorso` calculates and prints the sequence of stops or reports that no route exists.
+
+Binary search handles station lookup and existence checks. Operations that change the size of a structure use `malloc`, `realloc`, `free`, and, for ordered insertion, `memmove`.
+
+## The route as an implicit graph
+
+The core of the project is `findOptimalPath`. I treated each station as a node and every possible move as a directed connection: an edge exists from the current station to a later station when at least one available vehicle has sufficient range.
+
+The graph is never built or stored explicitly. Connections are evaluated when needed by comparing the distance between two stations with the ranges in the departure fleet. The direction of travel determines the scan order: `+1` when the destination is farther along the highway and `-1` when travelling towards its beginning.
+
+Two supporting arrays hold the state of the search. `minSteps` stores the smallest known number of moves required to reach each station; the array named `nextStation` actually records the selected predecessor. Both start at `-1`, while the starting station receives a logical distance of zero.
+
+For every station that is already reachable, the algorithm examines subsequent stations in the permitted direction. If the fleet makes a move possible, it updates the number of steps when it finds a shorter route. Finally, it reconstructs the route backwards from destination to origin through the predecessor chain and prints it in travel order.
+
+<figure class="project-explainer">
+  <img src="/images/projects/explainers/highway-implicit-graph.svg" alt="Five stations connected by reachability arcs, with the minimum route 20, 30, 50 highlighted" width="1200" height="675" loading="lazy" />
+  <figcaption>The stations remain an ordered array; edges are evaluated only when a vehicle’s range makes the move possible. The highlighted path reaches the destination with the fewest stops.</figcaption>
+</figure>
+
+## Tied routes
+
+The specification does not accept an arbitrary answer when several routes use the same minimum number of stops. Working backwards from a shared final sequence, it requires the route containing the station with the shorter distance from the beginning of the highway.
+
+The code handles ties while updating a predecessor: when the step count is equal, it retains the candidate with the lower distance. This detail matters particularly for reverse journeys, because preference depends on absolute distance from the beginning of the highway rather than the direction of travel.
+
+In the specification’s example, `20 → 30 → 50` must be selected over `20 → 45 → 50`. For the opposite journey, the required sequence is `50 → 30 → 20`.
+
+## Complexity and trade-offs
+
+Looking up a station costs `O(log n)` because the collection remains ordered. Inserting or demolishing a station is still linear in the worst case because later entries must be shifted. Removing a vehicle can likewise require scanning and compacting the whole fleet.
+
+Route planning compares pairs of stations and may scan the departure fleet to test each possible move. Its worst-case cost is therefore `O(n² · v)`, where `v` is the number of vehicles per station and the specification caps it at 512. The minimum-step, predecessor, and reconstructed-route arrays require memory linear in the number of stations.
+
+This solution favours a direct and readable representation. It is not the most sophisticated structure possible, but it keeps ordering, reachability, and route reconstruction explicit.
+
+## What I learned and what I would improve
+
+The project required me to reason about invariants, memory, and algorithms together. A data structure is useful not only because it stores the right information, but because it makes the operations performed on that information reliable and understandable.
+
+Today I would separate command parsing from the domain logic, handle allocation failures consistently, and release every allocation before the program exits. I would also isolate the tie-breaking rule in a dedicated function and add automated tests for equivalent routes, reverse journeys, empty fleets, and unreachable destinations.
+
+To reduce planning cost, I would consider maintaining the maximum available range for each station. Determining whether a stop is reachable does not require knowing which vehicle will be selected—only whether at least one vehicle can cover the distance.

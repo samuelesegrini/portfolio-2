@@ -1,0 +1,66 @@
+---
+interface Props {
+	rank: number;
+	title: string;
+	excerpt: string;
+	kind: string;
+	year: number;
+	href: string;
+	tone: 'blue' | 'lime' | 'violet' | 'orange' | 'paper';
+	lead?: boolean;
+	featured?: boolean;
+	archive?: boolean;
+	coverImage?: string;
+	coverAlt?: string;
+	filterKind?: string;
+}
+
+const {
+	rank,
+	title,
+	excerpt,
+	kind,
+	year,
+	href,
+	tone,
+	lead = false,
+	featured = false,
+	archive = false,
+	coverImage,
+	coverAlt = '',
+	filterKind,
+} = Astro.props;
+---
+
+<article
+	class:list={['project-card', `tone-${tone}`, { lead }]}
+	data-featured-project={featured ? '' : undefined}
+	data-project-item={archive ? '' : undefined}
+	data-kind={filterKind ?? kind}
+>
+	<a href={href}>
+		<div class="project-meta">
+			<span>0{rank}</span>
+			<span>{kind} · {year}</span>
+		</div>
+		{
+			coverImage ? (
+				<img
+					class="project-cover"
+					src={coverImage}
+					alt={coverAlt}
+					width="1200"
+					height="800"
+					loading={lead ? 'eager' : 'lazy'}
+				/>
+			) : (
+				<div class="project-art" aria-hidden="true"><span /><span /><span /></div>
+			)
+		}
+		<div>
+			<h3>{title}</h3>
+			<p>{excerpt}</p>
+		</div>
+		<span class="project-arrow" aria-hidden="true">↗</span>
+	</a>
+</article>

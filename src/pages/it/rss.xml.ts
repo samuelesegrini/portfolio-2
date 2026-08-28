@@ -1,0 +1,20 @@
+import rss from '@astrojs/rss';
+import type { APIContext } from 'astro';
+import { getPublishedPosts } from '../../lib/content';
+import { getPortfolioContent, postPath } from '../../lib/portfolio';
+
+export async function GET(context: APIContext) {
+	const { posts } = await getPortfolioContent();
+	return rss({
+		title: 'Articoli — Software Engineer',
+		description: 'Decisioni tecniche, processi e cose imparate costruendo.',
+		site: context.site!,
+		items: getPublishedPosts(posts, 'it').map((post) => ({
+			title: post.title,
+			description: post.excerpt,
+			pubDate: post.publishedAt,
+			link: postPath(post),
+		})),
+		customData: '<language>it-IT</language>',
+	});
+}

@@ -1,0 +1,82 @@
+---
+translationKey: my-first-video-game
+locale: it
+slug: il-mio-primo-videogioco-era-un-sistema-distribuito
+title: Il mio primo videogioco era un sistema distribuito
+excerpt: Pensavo che il mio primo progetto di gioco avrebbe riguardato regole e interfacce. Mi ha insegnato invece quanto lavoro invisibile serva prima che più giocatori possano condividere lo stesso mondo.
+draft: false
+coverImage: /images/projects/application-project.svg
+coverAlt: Composizione astratta che rappresenta più giocatori collegati alla stessa partita
+seoTitle: Il mio primo videogioco era un sistema distribuito
+seoDescription: Una riflessione personale su Java, collaborazione, rete e ingegneria del software nata costruendo un adattamento multiplayer di Galaxy Trucker.
+publishedAt: 2026-08-27
+tags:
+  - Java
+  - Distributed systems
+  - Personal experience
+relatedProjectKey: galaxy-trucker
+---
+
+> Quando ho iniziato a lavorare su Galaxy Trucker, immaginavo che costruire un videogioco significasse implementare regole, disegnare un'interfaccia e infine vedere qualcosa reagire sullo schermo. Prima che il gioco potesse esistere, però, dovevamo risolvere un problema meno visibile: fare in modo che più persone abitassero la stessa partita senza lasciare che i loro client fossero in disaccordo su ciò che era reale.
+>
+> È stato il mio primo progetto di gioco completo e una delle esperienze che hanno trasformato Java da linguaggio che stavo imparando a strumento per costruire un sistema insieme ad altre persone.
+
+## Il gioco che immaginavo
+
+Galaxy Trucker sembrava un punto di partenza accessibile perché il suo mondo esisteva già. Non dovevamo inventare personaggi, livelli o un sistema di combattimento. C'erano un tabellone, un regolamento, un insieme finito di componenti e una sequenza chiara: costruire una nave, lanciarla, sopravvivere alle carte e calcolare un punteggio.
+
+Quella chiarezza apparente era ingannevole. Un gioco fisico si affida alle persone per ricordare il contesto, risolvere ambiguità e correggersi a vicenda. Il software deve rappresentare esplicitamente ciascuna di queste assunzioni. Deve sapere in quale fase si trovi la partita, quali azioni siano ammesse, cosa possa vedere ogni giocatore e cosa accada quando due richieste arrivano quasi insieme.
+
+La prima lezione del mio primo videogioco è stata quindi che le regole non diventano software quando vengono copiate dentro alcuni metodi. Diventano stato, transizioni, messaggi, validazione e casi di errore.
+
+## Prima dello schermo veniva il sistema
+
+All'inizio associavo un gioco soprattutto a ciò che un giocatore poteva vedere. Gran parte del mio lavoro è finita invece dietro quella superficie: autenticazione, sessioni di gioco, dispatch dei comandi, RMI, heartbeat, propagazione degli eventi e coordinamento di più partite.
+
+Nessuna di queste aree produce uno screenshot particolarmente spettacolare. Senza di esse, però, una nave grafica è soltanto un disegno locale. Un posizionamento diventa parte di un gioco multiplayer soltanto quando il client esprime un'intenzione, il server la valida e la applica e ogni giocatore coinvolto riceve un nuovo stato coerente.
+
+Guardando indietro, questo ciclo completo è la soglia che uso per distinguere una dimostrazione d'interfaccia da un gioco. Un pulsante che modifica la propria schermata è interazione. Una decisione che attraversa la rete e diventa realtà condivisa è un sistema.
+
+## Quando Java ha smesso di essere un esercizio
+
+Java non era più un insieme di classi isolate con un output previsto. Il linguaggio era diventato il luogo in cui si incontravano decisioni prese in parti diverse del progetto.
+
+Un'interfaccia poteva separare Socket da RMI, ma soltanto se entrambe le implementazioni concordavano sullo stesso comportamento. Un oggetto poteva essere corretto in memoria e fallire quando la serializzazione attraversava la rete. Un evento poteva compilare, arrivare a destinazione e restare comunque sbagliato perché il client lo interpretava rispetto a uno stato ormai vecchio.
+
+Questo ha cambiato il significato che attribuivo all'apprendimento di un linguaggio. Sintassi e concetti object-oriented erano necessari, ma rappresentavano la parte meno costosa. La capacità più difficile consisteva nel mantenere un invariante attraverso package, processi e codice scritto da persone diverse.
+
+## Quattro persone, una sola partita
+
+Il progetto è stato anche la prima volta in cui il codebase ha smesso di sembrarmi una raccolta di consegne individuali. Il mio lavoro sui messaggi o sui controller del ciclo di vita influenzava viste e comportamento del modello appartenenti ad altri; le loro decisioni cambiavano le assunzioni presenti nel mio codice.
+
+Questo rendeva l'integrazione scomoda e preziosa. Una funzionalità poteva funzionare da sola e fallire comunque nell'applicazione completa. Correggerla richiedeva di capire abbastanza dell'area di un'altra persona da discutere il contratto tra noi senza limitarsi a prenderne il controllo.
+
+Ho iniziato a vedere le interfacce in modo diverso. Non erano soltanto una keyword di Java o un modo per soddisfare la richiesta di usare un design pattern. Erano accordi tra persone che lavoravano in punti differenti dello stesso flusso. Quando quegli accordi erano vaghi, l'incertezza riappariva sotto forma di stato duplicato, condizioni difensive o bug vicini alla consegna.
+
+## Un regolamento non è una specifica eseguibile
+
+Le regole di un gioco da tavolo sono scritte per esseri umani capaci di inferire l'intenzione. Il codice richiede una decisione per ogni confine. Cosa succede se un giocatore si disconnette mentre la partita attende una sua risposta? Quali informazioni sulla nave di un avversario sono pubbliche? Lo stesso comando può arrivare due volte? Quale evento rende il client abbastanza aggiornato da disegnare la schermata successiva?
+
+I bug più difficili raramente erano contenuti in un singolo metodo evidente. Comparivano dove una regola attraversava i livelli: dal modello al controller, dal controller al messaggio, dal messaggio allo stato del client e infine all'interfaccia.
+
+Quell'esperienza mi ha lasciato un'abitudine che considero ancora importante: quando un comportamento conta, scrivere l'invariante e identificare dove venga applicato. Se la risposta è “in diversi punti”, il design sta chiedendo problemi.
+
+## Consegnare ed essere finiti
+
+Abbiamo raggiunto la consegna del corso con il gioco richiesto, due trasporti, due interfacce e le funzionalità avanzate che avevamo scelto. Secondo quella definizione, il progetto era finito.
+
+Il sorgente archiviato contiene anche un difetto di compilazione nel client. Oggi non descriverei come pronta per una release una build in quelle condizioni. Entrambe le affermazioni possono essere vere: il team ha completato il prodotto accademico e il repository non offre attualmente una build pulita e riproducibile.
+
+Il mio primo istinto era correggere il difetto prima di presentare il progetto. Alla fine ho deciso che modificare l'artefatto condiviso avrebbe reso la storia più pulita ma meno accurata. Il limite resta quindi visibile nella case study, accanto al perimetro che abbiamo realmente consegnato.
+
+## Tornare sul primo gioco
+
+Tornare successivamente su Galaxy Trucker con Claude mi ha dato abbastanza distanza per distinguere la complessità accidentale dai vincoli realmente difficili. Alcune scelte originali apparivano grezze perché erano state prese sotto pressione. Altre esistevano perché informazioni nascoste, giocatori simultanei, due trasporti e un regolamento basato sullo stato generano davvero problemi complessi.
+
+La ricostruzione assistita da AI non ha sostituito il primo progetto. Mi ha permesso di rivederlo con criteri più solidi per interfacce dei moduli, semantica degli errori, test e completamento. Approfondisco quell'esperimento in [Ricostruire Galaxy Trucker con Claude: cosa è cambiato, cosa no e come misurarlo](/it/articoli/ricostruire-galaxy-trucker-con-claude/).
+
+## Cosa mi ha lasciato il mio primo videogioco
+
+Il mio primo videogioco mi ha insegnato meno del previsto su come far muovere oggetti sullo schermo. Mi ha insegnato quante promesse debbano essere mantenute prima che uno schermo possa raccontare la verità.
+
+Un gioco multiplayer promette che ogni giocatore stia partecipando alla stessa partita. Per mantenere quella promessa sono serviti Java, rete, modellazione del dominio, interfacce, test e quattro persone che imparavano a far incontrare le proprie decisioni. Oggi è proprio quella parte invisibile a sembrarmi la più importante del progetto.

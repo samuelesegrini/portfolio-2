@@ -1,0 +1,27 @@
+---
+import { getPublishedPosts, type Locale } from '../lib/content';
+import { getPortfolioContent, postPath } from '../lib/portfolio';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from './PostCard.astro';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const { posts } = await getPortfolioContent();
+const published = getPublishedPosts(posts, lang);
+const isIt = lang === 'it';
+const copy = isIt
+	? { title: 'Articoli', eyebrow: 'Note dal lavoro', description: 'Decisioni tecniche, processi e cose imparate costruendo.' }
+	: { title: 'Writing', eyebrow: 'Notes from the work', description: 'Technical decisions, process, and lessons from building.' };
+---
+
+<BaseLayout
+	lang={lang}
+	title={`${copy.title} — Software Engineer`}
+	description={copy.description}
+	translationURL={isIt ? '/en/writing/' : '/it/articoli/'}
+	alternateIt="/it/articoli/"
+	alternateEn="/en/writing/"
+>
+	<header class="page-hero dark-section"><p class="eyebrow">{copy.eyebrow}</p><h1>{copy.title}</h1><p>{copy.description}</p></header>
+	<section class="section archive-section"><div class="post-grid light">{published.map((post) => <PostCard title={post.title} excerpt={post.excerpt} href={postPath(post)} date={post.publishedAt} tags={post.tags} lang={lang} />)}</div></section>
+</BaseLayout>

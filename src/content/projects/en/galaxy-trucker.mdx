@@ -1,0 +1,79 @@
+---
+translationKey: galaxy-trucker
+locale: en
+slug: galaxy-trucker-java-project
+title: Galaxy Trucker
+excerpt: A four-person Java client–server game, followed by an independent AI-assisted reconstruction that tested delivery speed and architectural continuity against the same requirements.
+draft: false
+coverImage: /images/projects/galaxy-trucker-network.png
+coverAlt: Geometric modular spaceship connected through a server to four clients
+seoTitle: Galaxy Trucker — Java multiplayer game and AI reconstruction
+seoDescription: Case study of a four-person Java client-server implementation of Galaxy Trucker and a later AI-assisted reconstruction based on the same requirements.
+kind: app
+year: 2025
+role: Team developer; AI-assisted reconstruction author
+technologies:
+  - Java
+  - JavaFX
+  - Maven
+  - Socket / RMI
+  - JUnit
+relatedPostKeys:
+  - rebuilding-galaxy-trucker-with-claude
+  - my-first-video-game
+---
+
+> Galaxy Trucker began as the final project for the 2024–2025 Software Engineering course at Politecnico di Milano. Our four-person team translated the board game into a distributed Java application with an authoritative server, multiple clients, two network transports, and both textual and graphical interfaces.
+>
+> The team completed the agreed academic scope. The repository is nevertheless not a polished product maintained after submission: its archived source contains a known client compilation defect. I preserve that fact instead of rewriting the shared history.
+>
+> In 2026 I returned to the same requirements for a separate AI-assisted reconstruction. This page presents the project; the linked article examines that later experiment in depth.
+
+<dl class="project-results" aria-label="Project scope">
+  <div><dt>4</dt><dd>people in the original team</dd></div>
+  <div><dt>2</dt><dd>network transports</dd></div>
+  <div><dt>2</dt><dd>playable interfaces</dd></div>
+</dl>
+
+## The collaborative product
+
+The assignment required the complete level II game, automatic ship validation, visibility of every player's ship, and a client–server implementation following MVC. Clients had to connect through either Socket or RMI, including within the same game, and the result had to be playable through both a TUI and a JavaFX GUI.
+
+The team also implemented the test-flight mode and simultaneous games as advanced features. That meant coordinating several kinds of state at once: the shared component pool during ship construction, each player's private and public information, turn-dependent adventure cards, disconnections, and game sessions sharing one server.
+
+The result was not a collection of isolated screens. Commands had to cross the network, mutate authoritative state exactly once, and produce enough information for different interfaces to remain synchronized.
+
+<figure class="project-explainer">
+  <img src="/images/projects/explainers/galaxy-authoritative-server.svg" alt="Four clients with different interfaces connected to one central authoritative server" width="1200" height="675" loading="lazy" />
+  <figcaption>TUI and GUI clients could use Socket or RMI in the same game. Every command converged on the authoritative server, which applied the change once and distributed the new state to all clients.</figcaption>
+</figure>
+
+## My contribution
+
+I worked mainly across the integration seams of the original system. The repository history records my contributions to the early package and model structure, RMI transport, command and event messaging, authentication, heartbeat handling, game lifecycle and multi-game coordination, and the building-phase controller.
+
+As the project moved toward submission, my work became increasingly cross-cutting: connecting UI navigation to client state, repairing event and serialization flows, and debugging ship construction and adventure-card behaviour. This was the part of the project that taught me the most about distributed systems: a locally correct class is not enough when an event can be stale, duplicated, or interpreted differently on each side of a connection.
+
+These are my contributions, not a claim of sole authorship. Game rules, interfaces, testing, integration, and final delivery were collective responsibilities shared with Manuela Terribile, Alessandra Varricchio, and Diego Zanca.
+
+## Finished scope, archived build
+
+The original project was completed as an academic deliverable, but those words do not mean that its source currently passes a clean build. In the final snapshot, `ClientApp` imports a `newGUI` class that is no longer present. A fresh compilation therefore fails before reaching the game.
+
+I chose not to silently fix that defect and then describe the modified code as the team's submission. The branch remains a historical artifact, while this case study states the limitation beside the result. The submitted JAR files also remain in the repository, but I treat them as archived deliverables rather than evidence of a build verified today.
+
+This distinction is important to me: **completion is a historical project status; reproducibility is a current technical status**. A credible portfolio should say which one it can prove.
+
+## A second pass with Claude
+
+The later work on `develop` is an individual AI-assisted reconstruction, not an extension of the team's authorship. I directed the milestones, evaluated architectural proposals, and reviewed behaviour against the published rules and requirements while Claude accelerated exploration and implementation.
+
+That reconstruction kept several system-level choices and changed important internal structures. It also exposed the limits of the comparison: the documentation and repository context were available, so this was not a blind test of whether an AI would independently rediscover every decision.
+
+I examine the method, architectural convergence, divergences, and the human work that remained in [Rebuilding Galaxy Trucker with Claude: what changed, what didn't, and how to measure it](/en/writing/rebuilding-galaxy-trucker-with-claude/).
+
+## What I would carry forward
+
+This project taught me that distributed behaviour is an integration problem before it is a class-design problem. The reconstruction added a second lesson: AI becomes meaningfully faster when requirements, decision criteria, and verification are explicit.
+
+The two versions therefore represent different evidence. The original shows collaboration and delivery under a deadline. The rebuild shows how I now structure, question, and verify a system with an AI collaborator while retaining responsibility for the result.

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title">
+  <title id="title">User research converges into product needs, a mobile prototype, and a testing loop</title>
+  <rect width="1200" height="675" rx="40" fill="#DED1FF"/>
+  <path d="M120 337H1040" stroke="#080808" stroke-width="6" stroke-linecap="round"/>
+  <path d="m1018 310 38 27-38 27" fill="none" stroke="#080808" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <g fill="#F4F1E9" stroke="#080808" stroke-width="5">
+    <circle cx="180" cy="337" r="92"/>
+    <circle cx="470" cy="337" r="92"/>
+    <circle cx="760" cy="337" r="92"/>
+    <circle cx="1020" cy="337" r="92"/>
+  </g>
+
+  <g fill="#080808">
+    <circle cx="150" cy="302" r="18"/><circle cx="210" cy="302" r="18"/>
+    <path d="M116 367c5-34 24-51 34-51s29 17 34 51zM176 367c5-34 24-51 34-51s29 17 34 51z"/>
+  </g>
+
+  <g fill="#C7FF9F" stroke="#080808" stroke-width="5">
+    <circle cx="436" cy="310" r="28"/><circle cx="504" cy="310" r="28"/>
+    <circle cx="470" cy="374" r="28"/>
+  </g>
+  <path d="m455 329 15 17 15-17" fill="none" stroke="#080808" stroke-width="5" stroke-linecap="round"/>
+
+  <g fill="#C7FF9F" stroke="#080808" stroke-width="5">
+    <rect x="711" y="255" width="98" height="164" rx="20"/>
+    <circle cx="760" cy="391" r="7" fill="#080808"/>
+  </g>
+  <path d="M731 292h58M731 321h36M731 350h48" stroke="#080808" stroke-width="5" stroke-linecap="round"/>
+
+  <g fill="none" stroke="#080808" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M992 299a47 47 0 1 1-12 57"/>
+    <path d="m974 281 20 19 3-29"/>
+  </g>
+  <circle cx="1020" cy="337" r="14" fill="#C7FF9F" stroke="#080808" stroke-width="5"/>
+
+  <path d="M1020 441C900 575 615 586 470 459" fill="none" stroke="#C7FF9F" stroke-width="28" stroke-linecap="round"/>
+  <path d="M1020 441C900 575 615 586 470 459" fill="none" stroke="#080808" stroke-width="5" stroke-linecap="round"/>
+  <path d="m490 450-20 9 10 20" fill="#C7FF9F" stroke="#080808" stroke-width="5" stroke-linejoin="round"/>
+</svg>

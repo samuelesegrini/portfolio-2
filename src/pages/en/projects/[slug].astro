@@ -1,0 +1,11 @@
+---
+import ProjectDetail from '../../../components/ProjectDetail.astro';
+import { getPortfolioContent } from '../../../lib/portfolio';
+
+export async function getStaticPaths() {
+	const { projectDocuments } = await getPortfolioContent();
+	return projectDocuments.filter(({ data }) => !data.draft && data.locale === 'en').map((document) => ({ params: { slug: document.data.slug }, props: { document } }));
+}
+const { document } = Astro.props;
+---
+<ProjectDetail document={document} />

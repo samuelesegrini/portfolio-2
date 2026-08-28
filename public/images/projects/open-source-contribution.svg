@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title">
+  <title id="title">Orange blocks connected by a curved line</title>
+  <rect width="1200" height="800" rx="48" fill="#FFD4B8"/>
+  <rect x="170" y="160" width="270" height="210" rx="28" fill="#080808"/>
+  <rect x="760" y="430" width="270" height="210" rx="28" fill="#C7FF9F" stroke="#080808" stroke-width="3"/>
+  <path d="M440 260c250 0 90 280 320 280" fill="none" stroke="#080808" stroke-width="5"/>
+</svg>

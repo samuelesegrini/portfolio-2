@@ -1,0 +1,96 @@
+---
+translationKey: priority-task-queue-manager
+locale: en
+slug: priority-task-queue-manager
+title: Priority Task Queue Manager
+excerpt: A VHDL hardware component that maintains an ordered task queue in RAM, coordinating priorities, FIFO ordering, and timing through a 15-state FSM.
+draft: false
+coverImage: /images/projects/priority-task-queue-manager.svg
+coverAlt: Geometric priority-ordered task queue with a new item entering
+seoTitle: Priority Task Queue Manager — VHDL project
+seoDescription: Case study of a VHDL hardware component that manages an ordered task queue in RAM through a finite-state machine.
+kind: experiment
+year: 2026
+role: Solo hardware designer and developer
+technologies:
+  - VHDL
+  - Xilinx Vivado
+  - FPGA
+  - Finite-state machine
+featuredRank: 2
+relatedPostKeys: []
+---
+
+> An individual Digital Logic project developed from behavioural specification through synthesis and post-synthesis simulation of a complete hardware component. The module maintains a priority-ordered queue in RAM without keeping every entry locally.
+>
+> The work combined hardware architecture, the `START–DONE` protocol, and external-memory timing. The decisive correction was ensuring that completion became observable only after the new state had actually committed to RAM.
+
+## The problem
+
+The goal was to describe a VHDL module that manages a priority-ordered task list stored in external RAM. The component does not keep the entire queue locally: it must read, compare, and rewrite data through a synchronous memory interface, coordinating every step with the clock.
+
+Each task occupies one byte. The six most significant bits represent an identifier between 1 and 63, while the two least significant bits encode four priority levels. `00` means the highest priority and `11` the lowest; identifier zero is reserved for an empty list or an error condition.
+
+RAM address zero stores the queue length. Addresses 1 through `N` contain the ordered tasks: higher-priority entries come first and tasks with equal priority retain their arrival order. The functional capacity is limited to 31 tasks within a 64 KB single-port memory using 16-bit addresses and 8-bit data.
+
+## Four operations, one component
+
+The module’s behaviour is selected by a two-bit operation input:
+
+- `OP=00` performs aging by increasing every numerical priority value, saturating at `11` while retaining relative order;
+- `OP=01` removes the head task, returns its identifier, and compacts the remaining entries towards the beginning of memory;
+- `OP=10` inserts a task in sorted position, shifting lower-priority entries towards higher addresses;
+- `OP=11` clears the queue by writing zero to the count at address zero.
+
+Insertion also had to preserve FIFO ordering. When two tasks share a priority, the new task must be placed after those already stored. I implemented this with a backwards scan: starting at the tail, the component shifts strictly lower-priority entries and stops when it reaches the correct position. The comparison uses `>` rather than `>=`; that single choice determines whether arrival order is preserved.
+
+<figure class="project-explainer">
+  <img src="/images/projects/explainers/priority-queue-insertion.svg" alt="Before-and-after comparison of a task inserted after an existing item with the same priority" width="1200" height="675" loading="lazy" />
+  <figcaption>The new green task enters after the existing task with equal priority; only lower-priority entries move towards higher addresses. The strict comparison is what preserves FIFO.</figcaption>
+</figure>
+
+## Protocol and external memory
+
+The component communicates with its master through a `START–DONE` handshake. The master raises `i_start` with a valid operation and parameters; `o_done` remains low while processing. Once the result is ready, the module raises `o_done` and waits for the master to lower `i_start` before returning to idle.
+
+Reset is part of the protocol rather than only an internal register reset. After `i_rst`, the component writes zero to `RAM[0]` and keeps `o_done` high until memory initialization has completed. It therefore cannot accept a request while the externally visible state may still be inconsistent.
+
+The RAM is synchronous, single-port, and write-first. A single port means reads and writes must be serialized, while the 2 ns read latency prevents the component from presenting an address and consuming its data in the same logical instant.
+
+## Two-process architecture
+
+I organized the design around four responsibilities: control unit, datapath, register bank, and memory-interface logic. The control unit selects finite-state-machine transitions; the datapath performs comparisons and address calculations; the registers retain the count, scan pointer, task being inserted, and extracted identifier; the RAM interface selects signals, addresses, and data for each cycle.
+
+The implementation follows a VHDL two-process architecture. A combinational process calculates the next state, next register values, and outputs, always starting from explicit defaults. A sequential process updates the register record on each rising clock edge and handles asynchronous reset.
+
+Shared constants and types live in a separate package. The FSM state is grouped in a record rather than spread across unrelated signals, making the boundary between current and next state easier to inspect.
+
+## A 15-state FSM
+
+The finite-state machine contains 15 states grouped by purpose. Common states handle reset, idle, task-count fetch, operation selection, count update, final synchronization, and completion signalling.
+
+Operations that traverse the queue split each memory read from the following write. Aging alternates a read-preparation state with a task-update state. Removal fetches the head, saves its ID, and shifts every following entry one address to the left. Insertion scans backwards and moves tasks while searching for the destination, avoiding a separate second pass over the queue.
+
+This structure provides deterministic latency. Operations that traverse the list grow linearly with `N`; a tail insertion finishes quickly, while the worst insertion case shifts all 31 tasks.
+
+## The timing problem
+
+Some larger testbenches initially failed even though the component simulation appeared correct. The testbench read `RAM[0]` as soon as `o_done` rose, but the memory model applied a write after a 2 ns delay. Completion was therefore visible before the updated count had stabilized.
+
+I isolated the issue by inspecting the waveforms, FSM transitions, and RAM updates together. The fix was a `WAIT_COMMIT` state between `UPDATE_COUNT` and `DONE_STATE`: a cycle in which the component starts no new work and allows the memory write to complete.
+
+The cost is one additional cycle, or 20 ns at the required 50 MHz frequency. The benefit is a stronger timing contract: whenever `o_done` rises, external data is already stable and can be sampled without depending on immediate memory-model behaviour.
+
+## Verification and results
+
+I verified initialization, empty-queue insertion, priority ordering, FIFO behaviour, head removal, saturating aging, clearing, and boundary cases such as full and empty queues. All 10 functional tests passed, including the checks performed after correcting RAM synchronization.
+
+Synthesis in Xilinx Vivado for an Artix-7 FPGA produced a compact component: 91 LUTs, 32 flip-flops, and no inferred latches. The measured critical path was 1.658 ns, corresponding to an estimated maximum frequency of 603 MHz against the 50 MHz requirement.
+
+In the documented worst case, inserting into a 31-task queue takes 68 cycles, or 1.36 microseconds at 50 MHz. The sequential FSM therefore favours small area, predictable behaviour, and a straightforward interface over more expensive parallel processing.
+
+## What I would carry forward
+
+This project taught me that hardware correctness includes both the calculated value and the instant at which that value becomes observable. A transition that occurs a few nanoseconds too early can violate the protocol even when the algorithm itself is correct.
+
+In another iteration I would add assertions for the handshake and queue invariants, make address width and maximum task count configurable, and separate the operation controllers further. I would preserve the clear split between combinational and sequential logic, the backwards insertion scan, and the explicit commit state: those decisions made the final behaviour easier to reason about and verify.

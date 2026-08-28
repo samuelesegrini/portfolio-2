@@ -1,0 +1,96 @@
+---
+translationKey: priority-task-queue-manager
+locale: it
+slug: gestore-coda-task-priorita
+title: Priority Task Queue Manager
+excerpt: Un componente hardware in VHDL che mantiene una coda di task ordinata in RAM, coordinando priorità, politica FIFO e temporizzazione attraverso una FSM a 15 stati.
+draft: false
+coverImage: /images/projects/priority-task-queue-manager.svg
+coverAlt: Coda geometrica di task ordinati per priorità con un nuovo elemento in ingresso
+seoTitle: Priority Task Queue Manager — Progetto VHDL
+seoDescription: Case study di un componente hardware VHDL per gestire una coda di task ordinata in RAM tramite una macchina a stati finiti.
+kind: experiment
+year: 2026
+role: Hardware designer e sviluppatore individuale
+technologies:
+  - VHDL
+  - Xilinx Vivado
+  - FPGA
+  - Finite-state machine
+featuredRank: 2
+relatedPostKeys: []
+---
+
+> Progetto individuale di Reti Logiche: dalla specifica comportamentale alla sintesi e alla simulazione post-sintesi di un componente hardware completo. Il modulo mantiene in RAM una coda ordinata per priorità senza conservarne localmente tutti gli elementi.
+>
+> Il lavoro ha unito architettura hardware, protocollo `START–DONE` e temporizzazione della memoria. La correzione decisiva è stata rendere il completamento osservabile soltanto dopo il commit effettivo del nuovo stato in RAM.
+
+## Il problema
+
+L’obiettivo era descrivere in VHDL un modulo capace di gestire una lista di task ordinati per priorità, memorizzata in una RAM esterna. Il componente non conserva localmente l’intera coda: deve leggere, confrontare e riscrivere i dati attraverso un’interfaccia di memoria sincrona, coordinando ogni passaggio con il clock.
+
+Ogni task occupa un byte. I sei bit più significativi rappresentano un identificatore compreso tra 1 e 63, mentre i due bit meno significativi codificano quattro livelli di priorità. Il valore `00` indica la priorità massima e `11` quella minima; l’identificatore zero è riservato per segnalare una lista vuota o una condizione di errore.
+
+La RAM usa l’indirizzo zero come contatore della lista. Gli indirizzi da 1 a `N` contengono invece i task già ordinati: prima quelli più importanti e, a parità di priorità, quelli arrivati prima. La capacità funzionale è limitata a 31 task, all’interno di una memoria single-port da 64 KB con indirizzi a 16 bit e dati a 8 bit.
+
+## Quattro operazioni, un solo componente
+
+Il comportamento del modulo dipende da un ingresso operativo a due bit:
+
+- `OP=00` esegue l’aging, incrementando il valore numerico della priorità di tutti i task con saturazione a `11` e senza cambiare il loro ordine relativo;
+- `OP=01` rimuove il task in testa, restituisce il suo identificatore e compatta verso sinistra gli elementi rimanenti;
+- `OP=10` inserisce un nuovo task nella posizione corretta, spostando verso destra gli elementi meno prioritari;
+- `OP=11` svuota la lista azzerando il contatore all’indirizzo zero.
+
+L’inserimento doveva preservare anche la politica FIFO. Se due task hanno la stessa priorità, quello nuovo deve essere collocato dopo quelli già presenti. Per ottenere questo comportamento ho effettuato una scansione all’indietro: parto dalla coda, sposto gli elementi con priorità strettamente inferiore e interrompo la ricerca non appena trovo la posizione corretta. Il confronto usa `>` e non `>=`; quella singola scelta determina se l’ordine di arrivo viene rispettato.
+
+<figure class="project-explainer">
+  <img src="/images/projects/explainers/priority-queue-insertion.svg" alt="Confronto prima e dopo l’inserimento di un task, collocato dopo un elemento con la stessa priorità" width="1200" height="675" loading="lazy" />
+  <figcaption>Il nuovo task verde entra dopo quello già presente con pari priorità; soltanto gli elementi meno prioritari vengono spostati verso indirizzi maggiori. È il confronto stretto a preservare FIFO.</figcaption>
+</figure>
+
+## Protocollo e memoria esterna
+
+Il componente comunica con il master attraverso un handshake `START–DONE`. Il master alza `i_start` con operazione e parametri validi; durante l’elaborazione `o_done` resta basso. Quando il risultato è pronto, il modulo alza `o_done` e attende che il master rilasci `i_start` prima di tornare in attesa.
+
+Il reset è parte del protocollo, non soltanto un azzeramento interno. Dopo `i_rst`, il componente scrive zero in `RAM[0]` e mantiene `o_done` alto finché l’inizializzazione della memoria non è conclusa. In questo modo non accetta richieste mentre lo stato esterno potrebbe essere ancora incoerente.
+
+La RAM è sincrona, single-port e write-first. Una singola porta significa che letture e scritture devono essere serializzate; la latenza di lettura di 2 ns impedisce inoltre di impostare un indirizzo e consumarne il dato nello stesso istante logico.
+
+## Architettura two-process
+
+Ho organizzato il design attorno a quattro responsabilità: unità di controllo, datapath, banco dei registri e logica d’interfaccia verso la memoria. La control unit decide le transizioni della macchina a stati; il datapath esegue confronti e calcola indirizzi; i registri mantengono contatore, puntatore di scansione, task da inserire e identificatore estratto; l’interfaccia RAM seleziona segnali, indirizzi e dati per ogni ciclo.
+
+Il codice usa un’architettura VHDL two-process. Un processo combinatorio calcola prossimo stato, valori successivi dei registri e uscite, partendo sempre da valori predefiniti. Un processo sequenziale aggiorna il record dei registri sul fronte di salita del clock e gestisce il reset asincrono.
+
+Costanti e tipi comuni sono raccolti in un package separato. Tutto lo stato della FSM è invece raggruppato in un record: una scelta che riduce i segnali sparsi e rende più esplicito il passaggio tra stato corrente e stato successivo.
+
+## Una FSM a 15 stati
+
+La macchina a stati finiti contiene 15 stati organizzati per funzione. Gli stati comuni gestiscono reset, attesa, lettura del numero di task, scelta dell’operazione, aggiornamento del contatore, sincronizzazione finale e segnalazione di completamento.
+
+Le operazioni che percorrono la lista separano ogni lettura dalla scrittura successiva. L’aging alterna uno stato di preparazione della lettura e uno di aggiornamento del task. La rimozione legge la testa, salva l’ID e sposta ogni elemento all’indirizzo precedente. L’inserimento esegue una scansione all’indietro e sposta i task mentre cerca la destinazione, evitando un secondo passaggio sull’intera lista.
+
+Questa struttura rende la latenza deterministica. Le operazioni che attraversano la lista crescono linearmente con `N`; l’inserimento in coda termina rapidamente, mentre il caso peggiore sposta tutti i 31 task.
+
+## Il problema di temporizzazione
+
+Durante i test più grandi alcune verifiche fallivano anche se la simulazione del componente sembrava corretta. Il testbench leggeva `RAM[0]` non appena `o_done` saliva, ma il modello della memoria applicava la scrittura con 2 ns di ritardo. Il segnale di completamento diventava quindi visibile prima che il nuovo contatore fosse stabile.
+
+Ho isolato il problema osservando insieme forme d’onda, transizioni della FSM e aggiornamenti della RAM. La correzione è stata aggiungere `WAIT_COMMIT` tra `UPDATE_COUNT` e `DONE_STATE`: un ciclo nel quale il componente non avvia altre operazioni e lascia alla memoria il tempo di completare la scrittura.
+
+Il costo è un ciclo aggiuntivo, pari a 20 ns alla frequenza richiesta di 50 MHz. Il beneficio è un contratto temporale più robusto: quando `o_done` sale, il dato esterno è già stabile e può essere letto senza dipendere dal comportamento immediato del modello di memoria.
+
+## Verifica e risultati
+
+Ho verificato inizializzazione, inserimento in lista vuota, ordinamento, FIFO, rimozione della testa, aging con saturazione, svuotamento e casi limite come lista piena o vuota. I 10 test funzionali sono stati superati, sia nella verifica comportamentale sia dopo la correzione della sincronizzazione con la RAM.
+
+La sintesi in Xilinx Vivado su FPGA Artix-7 ha prodotto un componente compatto: 91 LUT, 32 flip-flop e nessun latch inferito. Il critical path misurato è di 1,658 ns, corrispondente a una frequenza massima stimata di 603 MHz rispetto al requisito di 50 MHz.
+
+Nel caso peggiore documentato, l’inserimento con 31 task richiede 68 cicli, cioè 1,36 microsecondi a 50 MHz. La scelta di una FSM sequenziale privilegia quindi area contenuta, comportamento prevedibile e semplicità dell’interfaccia rispetto a un’elaborazione parallela più costosa.
+
+## Cosa porterei nella versione successiva
+
+Questo progetto mi ha insegnato che la correttezza hardware comprende sia il valore calcolato sia l’istante in cui quel valore diventa osservabile. Una transizione anticipata di pochi nanosecondi può violare il protocollo anche quando l’algoritmo è corretto.
+
+In una nuova iterazione aggiungerei assertion sul protocollo e sulle invarianti della coda, renderei configurabili larghezza degli indirizzi e numero massimo di task e separerei ulteriormente i controller delle singole operazioni. Manterrei invece la distinzione netta tra logica combinatoria e sequenziale, la scansione all’indietro per l’inserimento e lo stato di commit esplicito: sono le decisioni che hanno reso il comportamento più leggibile e verificabile.

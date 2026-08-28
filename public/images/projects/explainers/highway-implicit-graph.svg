@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title">
+  <title id="title">Reachable highway stations form an implicit graph and one minimum-stop route is selected</title>
+  <rect width="1200" height="675" rx="40" fill="#CDEFFF"/>
+  <path d="M120 430H1080" stroke="#080808" stroke-width="8" stroke-linecap="round"/>
+
+  <g fill="none" stroke="#080808" stroke-width="5" stroke-linecap="round" opacity=".22">
+    <path d="M150 410Q270 150 390 410"/>
+    <path d="M150 410Q390 60 630 410"/>
+    <path d="M390 410Q600 155 810 410"/>
+    <path d="M630 410Q855 80 1080 410"/>
+    <path d="M810 410Q945 210 1080 410"/>
+  </g>
+
+  <path d="M150 410Q270 150 390 410Q735 20 1080 410" fill="none" stroke="#C7FF9F" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M150 410Q270 150 390 410Q735 20 1080 410" fill="none" stroke="#080808" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="32" font-weight="700" text-anchor="middle">
+    <g fill="#080808" stroke="#080808" stroke-width="5">
+      <circle cx="150" cy="430" r="46"/><circle cx="390" cy="430" r="46"/><circle cx="1080" cy="430" r="46"/>
+    </g>
+    <g fill="#F4F1E9" stroke="#080808" stroke-width="5">
+      <circle cx="630" cy="430" r="34"/><circle cx="810" cy="430" r="34"/>
+    </g>
+    <g fill="#C7FF9F"><text x="150" y="442">20</text><text x="390" y="442">30</text><text x="1080" y="442">50</text></g>
+    <g fill="#080808"><text x="630" y="442">40</text><text x="810" y="442">45</text></g>
+  </g>
+  <path d="m1042 356 38 54-64-8" fill="#C7FF9F" stroke="#080808" stroke-width="5" stroke-linejoin="round"/>
+</svg>

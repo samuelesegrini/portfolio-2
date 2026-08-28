@@ -1,0 +1,100 @@
+---
+translationKey: highway-route-planner
+locale: it
+slug: pianificatore-percorsi-autostradali
+title: Highway Route Planner
+excerpt: Un programma in C che gestisce stazioni e veicoli elettrici e pianifica il percorso con il minor numero di tappe, in entrambe le direzioni dell’autostrada.
+draft: false
+coverImage: /images/projects/highway-route-planner.svg
+coverAlt: Schema geometrico di un percorso ottimale che salta le stazioni non necessarie
+seoTitle: Highway Route Planner — Progetto in C
+seoDescription: Case study di un progetto individuale in C per gestire stazioni di servizio e pianificare percorsi con il minor numero di tappe.
+kind: app
+year: 2023
+role: Sviluppatore individuale
+technologies:
+  - C
+  - Dynamic memory
+  - Binary search
+featuredRank: 1
+relatedPostKeys: []
+---
+
+> Progetto individuale sviluppato per la prova finale di Algoritmi e Strutture Dati 2022–2023. Il programma mantiene un’autostrada mutabile, gestisce le flotte di veicoli elettrici e calcola un percorso valido in entrambe le direzioni.
+>
+> La difficoltà principale non era soltanto trovare il minor numero di tappe: la soluzione doveva rispettare una regola di preferenza precisa tra percorsi equivalenti, continuando a funzionare dopo inserimenti e rimozioni di stazioni e veicoli.
+
+## Dalla specifica al problema
+
+La specifica descrive un’autostrada come una sequenza di stazioni di servizio. Ogni stazione è identificata in modo univoco dalla distanza dall’inizio dell’autostrada e dispone di un parco di veicoli elettrici. Ogni veicolo ha una propria autonomia e può raggiungere soltanto stazioni comprese entro quella distanza.
+
+Il sistema deve supportare dati che cambiano nel tempo: una stazione può essere costruita o demolita, mentre i veicoli possono essere aggiunti o rottamati. Su questa struttura aggiornata il programma deve poi pianificare un viaggio tra due stazioni esistenti.
+
+I vincoli rendono la pianificazione meno banale di una semplice verifica della distanza:
+
+- durante il viaggio non si può invertire la direzione;
+- a ogni tappa viene noleggiato un nuovo veicolo;
+- una stazione può contenere fino a 512 veicoli con autonomie differenti;
+- il percorso deve avere il minor numero possibile di tappe;
+- tra percorsi a pari merito bisogna applicare l’ordine di preferenza definito dalla specifica.
+
+Il risultato non è quindi soltanto un algoritmo di percorso: è un piccolo sistema mutabile che deve mantenere coerenti stazioni, flotte e richieste successive.
+
+## Modello dei dati
+
+Ho modellato un veicolo con la sua autonomia e una stazione con tre informazioni: distanza, numero di veicoli e puntatore all’array della flotta. L’autostrada è rappresentata da un array dinamico di stazioni mantenuto in ordine crescente di distanza.
+
+L’ordinamento è l’invariante principale della struttura. Permette a `findStationIndexByDistance` di usare una ricerca binaria invece di scandire ogni volta tutte le stazioni. Lo stesso ordine rende inoltre naturale attraversare l’autostrada da sinistra a destra o da destra a sinistra durante la pianificazione.
+
+Ogni stazione possiede una copia della propria flotta. Inserimenti e rimozioni modificano quindi due livelli di memoria dinamica: l’array delle stazioni e gli array dei veicoli appartenenti a ciascuna stazione.
+
+## Gestione dei comandi
+
+Il programma legge una sequenza di comandi da `input.txt` e scrive le risposte in `output.txt`. L’interfaccia richiesta comprende cinque operazioni:
+
+- `aggiungi-stazione` inserisce una nuova stazione nella posizione ordinata e copia la flotta iniziale;
+- `demolisci-stazione` libera la flotta associata e compatta l’array delle stazioni;
+- `aggiungi-auto` rialloca la flotta e aggiunge una nuova autonomia;
+- `rottama-auto` cerca un veicolo compatibile, lo rimuove e ricompatta l’array;
+- `pianifica-percorso` calcola e stampa la sequenza di tappe oppure segnala che non esiste un percorso.
+
+La ricerca binaria gestisce l’individuazione e la verifica di esistenza delle stazioni. Le operazioni che cambiano la dimensione delle strutture usano `malloc`, `realloc`, `free` e, per l’inserimento ordinato, `memmove`.
+
+## Il percorso come grafo implicito
+
+La parte centrale del progetto è `findOptimalPath`. Ho interpretato ogni stazione come un nodo e ogni spostamento possibile come un collegamento diretto: dalla stazione corrente esiste un arco verso una stazione successiva se almeno uno dei veicoli disponibili ha autonomia sufficiente.
+
+Il grafo non viene costruito e conservato esplicitamente. I collegamenti vengono verificati quando servono, confrontando la distanza tra due stazioni con le autonomie della flotta di partenza. La direzione del viaggio determina l’ordine di scansione: `+1` quando la destinazione è più avanti, `-1` quando si viaggia verso l’inizio dell’autostrada.
+
+Due array di supporto conservano lo stato della ricerca. `minSteps` memorizza il numero minimo di passaggi noto per raggiungere ogni stazione; l’array chiamato `nextStation` registra in realtà il predecessore scelto. Entrambi partono da `-1`, mentre la stazione iniziale riceve distanza logica zero.
+
+Per ogni stazione già raggiungibile, l’algoritmo esamina quelle successive nella direzione consentita. Se una flotta permette lo spostamento, aggiorna il numero di passaggi quando trova un percorso più corto. Alla fine, il percorso viene ricostruito dalla destinazione alla partenza seguendo i predecessori e poi stampato nell’ordine corretto.
+
+<figure class="project-explainer">
+  <img src="/images/projects/explainers/highway-implicit-graph.svg" alt="Cinque stazioni collegate da archi di raggiungibilità, con il percorso minimo 20, 30, 50 evidenziato" width="1200" height="675" loading="lazy" />
+  <figcaption>Le stazioni restano un array ordinato; gli archi vengono valutati soltanto quando un’autonomia rende possibile lo spostamento. Il percorso evidenziato raggiunge la destinazione con il minor numero di tappe.</figcaption>
+</figure>
+
+## Percorsi a pari merito
+
+La specifica non accetta una soluzione arbitraria quando più percorsi usano lo stesso numero di tappe. Richiede di preferire, procedendo a ritroso dalle tappe finali comuni, la stazione con distanza minore dall’inizio dell’autostrada.
+
+Nel codice il pareggio viene gestito durante l’aggiornamento del predecessore: a parità di passaggi viene conservato il candidato con distanza inferiore. Questo dettaglio è particolarmente importante nei viaggi in direzione inversa, perché la preferenza dipende dalla distanza assoluta dall’inizio dell’autostrada e non dal verso di percorrenza.
+
+Nell’esempio della specifica, tra `20 → 30 → 50` e `20 → 45 → 50` il primo percorso è quello da scegliere. Nel viaggio opposto la sequenza corretta diventa `50 → 30 → 20`.
+
+## Complessità e compromessi
+
+La ricerca di una stazione costa `O(log n)`, grazie all’ordinamento. Inserire o demolire una stazione rimane invece lineare nel caso peggiore, perché gli elementi successivi devono essere spostati. Anche la rimozione di un veicolo può richiedere la scansione e la compattazione dell’intera flotta.
+
+La pianificazione confronta coppie di stazioni e, per verificare uno spostamento, può scandire i veicoli della stazione di partenza. Il costo peggiore è quindi `O(n² · v)`, dove `v` è il numero di veicoli per stazione, limitato dalla specifica a 512. Gli array usati per distanza minima, predecessori e percorso richiedono memoria lineare rispetto al numero di stazioni.
+
+Questa soluzione privilegia una rappresentazione semplice e leggibile. Non è la struttura più sofisticata possibile, ma rende espliciti l’ordinamento, la raggiungibilità e il processo di ricostruzione.
+
+## Cosa ho imparato e cosa migliorerei
+
+Il progetto mi ha costretto a ragionare insieme su invarianti, memoria e algoritmo: una struttura dati non è utile soltanto perché contiene le informazioni, ma perché rende affidabili e comprensibili le operazioni che verranno eseguite su di essa.
+
+Oggi separerei il parsing dei comandi dalla logica del dominio, renderei sistematica la gestione degli errori di allocazione e completerei il rilascio di tutta la memoria prima della chiusura. Isolerei inoltre la regola di pareggio in una funzione dedicata e aggiungerei test automatici per percorsi equivalenti, direzione inversa, stazioni senza veicoli e assenza di un percorso.
+
+Per ridurre il costo della pianificazione, valuterei infine di mantenere per ogni stazione l’autonomia massima disponibile: per stabilire se una tappa è raggiungibile non serve infatti conoscere quale veicolo verrà scelto, ma soltanto se ne esiste almeno uno con autonomia sufficiente.
