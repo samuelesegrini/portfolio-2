@@ -220,6 +220,20 @@ test('technical case studies render their contextual explainer in both locales',
 	}
 });
 
+test('Galaxy Trucker exposes related writing as compact project evidence', async ({ page }) => {
+	for (const sample of [
+		{ path: '/it/progetti/galaxy-trucker-progetto-java/', label: 'Approfondimenti', action: "Leggi l'articolo" },
+		{ path: '/en/projects/galaxy-trucker-java-project/', label: 'Go deeper', action: 'Read article' },
+	]) {
+		await page.goto(sample.path);
+		const rail = page.locator('.project-writing');
+		await expect(rail.getByText(sample.label, { exact: true })).toBeVisible();
+		await expect(rail.locator('.related-writing-list a')).toHaveCount(2);
+		await expect(page.locator('.related-section .related-writing-list').getByText(sample.action, { exact: true })).toHaveCount(2);
+		await expect(page.locator('.related-section .post-card')).toHaveCount(0);
+	}
+});
+
 test('Galaxy Trucker and its AI reconstruction article link in both directions', async ({
 	page,
 }) => {
@@ -245,7 +259,7 @@ test('Galaxy Trucker and its AI reconstruction article link in both directions',
 
 test('Galaxy Trucker links a second bilingual personal article', async ({ page }) => {
 	await page.goto('/it/progetti/galaxy-trucker-progetto-java/');
-	const personalArticle = page.locator(
+	const personalArticle = page.locator('.related-section').locator(
 		'a[href="/it/articoli/il-mio-primo-videogioco-era-un-sistema-distribuito/"]',
 	);
 	await expect(personalArticle).toBeVisible();

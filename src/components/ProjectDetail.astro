@@ -3,7 +3,7 @@ import { render } from 'astro:content';
 import { siteConfig } from '../config/site';
 import { findPostDocument, findProjectDocument, getPortfolioContent, postPath, projectPath, type ProjectDocument } from '../lib/portfolio';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PostCard from './PostCard.astro';
+import RelatedWritingList from './RelatedWritingList.astro';
 
 interface Props { document: ProjectDocument }
 const { document } = Astro.props;
@@ -16,6 +16,12 @@ const { Content } = await render(document);
 const relatedPosts = project.relatedPostKeys
 	.map((key) => findPostDocument(postDocuments, key, project.locale))
 	.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+const relatedWriting = relatedPosts.map(({ data }) => ({
+	title: data.title,
+	excerpt: data.excerpt,
+	href: postPath(data),
+	publishedAt: data.publishedAt,
+}));
 const isIt = project.locale === 'it';
 const currentPath = projectPath(project);
 const translationPath = projectPath(translation.data);
@@ -57,6 +63,7 @@ const structuredData = {
 				<div><span>{isIt ? 'Tipo' : 'Type'}</span><strong>{kindLabel}</strong></div>
 				<div><span>{isIt ? 'Ruolo' : 'Role'}</span><strong>{project.role}</strong></div>
 				<div><span>{isIt ? 'Tecnologie' : 'Technologies'}</span><strong>{project.technologies.join(', ')}</strong></div>
+				{relatedWriting.length > 0 && <div class="project-writing"><span>{isIt ? 'Approfondimenti' : 'Go deeper'}</span><RelatedWritingList entries={relatedWriting} lang={project.locale} compact /></div>}
 				<div class="project-actions">
 					{project.repositoryURL && <a class="primary-button project-repository" href={project.repositoryURL} target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>}
 					{project.liveURL && <a href={project.liveURL} target="_blank" rel="noreferrer">{isIt ? 'Visita il progetto' : 'Visit project'} <span aria-hidden="true">↗</span></a>}
@@ -66,5 +73,5 @@ const structuredData = {
 			<div class="prose"><Content /></div>
 		</div>
 	</article>
-	{relatedPosts.length > 0 && <section class="section related-section dark-section"><div class="section-heading"><div><p class="eyebrow">{isIt ? 'Approfondimenti' : 'Go deeper'}</p><h2>{isIt ? 'Articoli collegati' : 'Related writing'}</h2></div></div><div class="post-grid">{relatedPosts.map(({ data }) => <PostCard title={data.title} excerpt={data.excerpt} href={postPath(data)} date={data.publishedAt} tags={data.tags} lang={project.locale} />)}</div></section>}
+	{relatedWriting.length > 0 && <section class="section related-section dark-section"><div class="section-heading"><div><p class="eyebrow">{isIt ? 'Approfondimenti' : 'Go deeper'}</p><h2>{isIt ? 'Articoli collegati' : 'Related writing'}</h2></div></div><RelatedWritingList entries={relatedWriting} lang={project.locale} /></section>}
 </BaseLayout>

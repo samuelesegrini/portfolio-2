@@ -1,0 +1,15 @@
+---
+interface Entry { title: string; excerpt: string; href: string; publishedAt: Date }
+interface Props { entries: readonly Entry[]; lang: 'it' | 'en'; compact?: boolean }
+
+const { entries, lang, compact = false } = Astro.props;
+const formatter = new Intl.DateTimeFormat(lang === 'it' ? 'it-IT' : 'en-GB', {
+	day: '2-digit',
+	month: 'long',
+	year: 'numeric',
+});
+---
+
+<ul class:list={['related-writing-list', { compact }]}>
+	{entries.map((entry) => <li><a href={entry.href}><div><time datetime={entry.publishedAt.toISOString()}>{formatter.format(entry.publishedAt)}</time><strong>{entry.title}</strong>{!compact && <p>{entry.excerpt}</p>}</div><div class="related-writing-action"><span>{lang === 'it' ? "Leggi l'articolo" : 'Read article'}</span> <span aria-hidden="true">↗</span></div></a></li>)}
+</ul>

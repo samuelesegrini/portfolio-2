@@ -92,6 +92,19 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 .post-grid.light { border-color: var(--line); }
 .post-grid.light .post-card { border-color: var(--line); }
 .post-grid.light .post-meta, .post-grid.light .post-card p { color: var(--muted); }
+.related-writing-list { margin: 0; padding: 0; border-top: 1px solid rgba(255,255,255,.22); list-style: none; }
+.related-writing-list li { border-bottom: 1px solid rgba(255,255,255,.22); }
+.related-writing-list a { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: 2rem; padding: 1.5rem 0; }
+.related-writing-list time { display: block; margin-bottom: .65rem; color: rgba(255,255,255,.58); font: .66rem var(--mono); text-transform: uppercase; }
+.related-writing-list strong { display: block; max-width: 38rem; font: 450 clamp(1.5rem,3vw,2.5rem)/1 var(--serif); }
+.related-writing-list p { max-width: 42rem; margin: .75rem 0 0; color: rgba(255,255,255,.68); }
+.related-writing-list > li > a > .related-writing-action { font-size: .8rem; font-weight: 720; white-space: nowrap; }
+.related-writing-list.compact { border-top-color: var(--line); }
+.related-writing-list.compact li { border-bottom-color: var(--line); }
+.related-writing-list.compact a { display: block; padding: .85rem 0; }
+.related-writing-list.compact time { color: var(--muted); }
+.related-writing-list.compact strong { font: 700 .9rem/1.35 var(--sans); }
+.related-writing-list.compact > li > a > .related-writing-action { display: inline-block; margin-top: .4rem; color: var(--muted); font-size: .7rem; }
 .about-teaser > div { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(15rem,.5fr); gap: clamp(3rem,8vw,8rem); }
 .about-teaser h2 { max-width: 13ch; margin: 0; font-family: var(--serif); font-size: clamp(3rem,7vw,7rem); font-weight: 440; letter-spacing: -.06em; line-height: .9; }
 .about-teaser p { margin: 0 0 2rem; color: var(--muted); font-size: 1.1rem; }
@@ -190,6 +203,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 	.post-card:nth-child(odd) { border-right: 0; }
 	.post-card + .post-card { border-top: 1px solid rgba(255,255,255,.22); }
 	.post-grid.light .post-card + .post-card { border-color: var(--line); }
+	.related-writing-list a { grid-template-columns: 1fr; gap: .75rem; }
 	.about-teaser > div, .detail-title, .detail-grid, .about-page { grid-template-columns: 1fr; }
 	.detail-hero > img { height: clamp(10rem,42vw,15rem); }
 	.detail-grid { row-gap: 1.25rem; }
