@@ -202,6 +202,7 @@ test('technical case studies render their contextual explainer in both locales',
 
 	for (const { paths, asset } of caseStudies) {
 		for (const path of paths) {
+			await page.setViewportSize({ width: 1280, height: 900 });
 			await page.goto(path);
 			const explainer = page.locator('.project-explainer');
 			await expect(explainer).toHaveCount(1);
