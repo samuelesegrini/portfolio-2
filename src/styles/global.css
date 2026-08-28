@@ -146,7 +146,14 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 .article-hero h1 { max-width: 13ch; margin: 0; font-family: var(--serif); font-size: clamp(4rem,9vw,8.5rem); font-weight: 450; letter-spacing: -.065em; line-height: .9; }
 .article-excerpt { max-width: 47rem; margin: 3rem 0 1.5rem; color: rgba(255,255,255,.68); font-size: clamp(1.1rem,2vw,1.35rem); }
 .article-hero time { font-family: var(--mono); font-size: .72rem; }
-.article-prose { margin: 0 auto; padding: clamp(5rem,9vw,9rem) var(--page-padding); }
+.article-layout { display: grid; grid-template-columns: minmax(0,47rem); justify-content: center; gap: 3rem; padding: clamp(5rem,9vw,9rem) var(--page-padding); }
+.article-layout.has-toc { grid-template-columns: minmax(0,47rem) minmax(12rem,15rem); max-width: 70rem; margin: 0 auto; }
+.article-prose { min-width: 0; }
+.article-toc { position: sticky; top: 2rem; align-self: start; max-height: calc(100svh - 4rem); overflow: auto; padding-left: 1.25rem; border-left: 1px solid var(--line); font-family: var(--mono); font-size: .7rem; line-height: 1.5; }
+.article-toc > p { margin: 0 0 1rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.article-toc ol { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
+.article-toc a { text-decoration: underline; text-decoration-color: transparent; text-underline-offset: .25rem; }
+.article-toc a:hover { text-decoration-color: currentColor; }
 .project-grid.single { grid-template-columns: 1fr; }
 .project-grid.single .project-card { min-height: 34rem; }
 .about-page { display: grid; grid-template-columns: minmax(0,.7fr) minmax(16rem,.3fr); align-items: start; gap: clamp(4rem,10vw,10rem); }
@@ -190,6 +197,8 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 	.detail-grid > .prose > h2 { max-width: 18ch; margin-top: 3.5rem; }
 	.detail-grid > .prose > h2 + * { margin-top: 0; }
 	.detail-grid > .prose > .project-explainer { grid-column: 1; }
+	.article-layout, .article-layout.has-toc { grid-template-columns: minmax(0,1fr); padding-inline: max(1.5rem,var(--page-padding)); }
+	.article-toc { display: none; }
 	.project-results { grid-template-columns: 1fr; }
 	.page-hero h1 { font-size: clamp(4rem,21vw,6.5rem); }
 	.footer-links { flex-wrap: wrap; }

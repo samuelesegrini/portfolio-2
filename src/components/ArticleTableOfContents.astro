@@ -1,0 +1,10 @@
+---
+interface Heading { depth: number; slug: string; text: string }
+interface Props { headings: readonly Heading[]; lang: 'it' | 'en' }
+const { headings, lang } = Astro.props;
+---
+
+<nav class="article-toc" aria-label={lang === 'it' ? "Indice dell'articolo" : 'In this article'}>
+	<p>{lang === 'it' ? 'In questo articolo' : 'In this article'}</p>
+	<ol>{headings.map((heading) => <li><a href={'#' + heading.slug}>{heading.text}</a></li>)}</ol>
+</nav>

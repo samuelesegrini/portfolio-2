@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import { findPostDocument, findProjectDocument, getPortfolioContent, postPath, projectPath, type PostDocument } from '../lib/portfolio';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleTableOfContents from './ArticleTableOfContents.astro';
 import ProjectCard from './ProjectCard.astro';
 
 interface Props { document: PostDocument }
@@ -14,7 +15,9 @@ if (!translation) throw new Error(`Missing translation for post ${post.translati
 const relatedProject = post.relatedProjectKey
 	? findProjectDocument(projectDocuments, post.relatedProjectKey, post.locale)
 	: undefined;
-const { Content } = await render(document);
+const { Content, headings } = await render(document);
+const tocHeadings = headings.filter(({ depth }) => depth === 2);
+const showTableOfContents = tocHeadings.length >= 4;
 const isIt = post.locale === 'it';
 const currentPath = postPath(post);
 const translationPath = postPath(translation.data);
@@ -52,7 +55,10 @@ const structuredData = {
 			<p class="article-excerpt">{post.excerpt}</p>
 			<time datetime={post.publishedAt.toISOString()}>{formattedDate}</time>
 		</header>
-		<div class="prose article-prose"><Content /></div>
+		<div class:list={['article-layout', { 'has-toc': showTableOfContents }]}>
+			<div class="prose article-prose"><Content /></div>
+			{showTableOfContents && <ArticleTableOfContents headings={tocHeadings} lang={post.locale} />}
+		</div>
 	</article>
 	{relatedProject && <section class="section related-work"><div class="section-heading"><div><p class="eyebrow dark">{isIt ? 'Dal progetto' : 'From the project'}</p><h2>{isIt ? 'Lavoro collegato' : 'Related work'}</h2></div></div><div class="project-grid single"><ProjectCard rank={1} title={relatedProject.data.title} excerpt={relatedProject.data.excerpt} kind={relatedProject.data.kind} year={relatedProject.data.year} href={projectPath(relatedProject.data)} tone="lime" coverImage={relatedProject.data.coverImage} coverAlt={relatedProject.data.coverAlt} /></div></section>}
 </BaseLayout>

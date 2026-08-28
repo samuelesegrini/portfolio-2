@@ -394,3 +394,27 @@ test('draft content is absent from public archives', async ({ page }) => {
 	await expect(page.getByText('Unpublished draft')).toHaveCount(0);
 	await expect(page.locator('[data-post-item]')).toHaveCount(4);
 });
+
+test('long articles expose bilingual generated navigation', async ({ page }) => {
+	for (const sample of [
+		{ path: '/it/articoli/il-mio-primo-videogioco-era-un-sistema-distribuito/', label: "Indice dell'articolo", first: 'Il gioco che immaginavo', count: 8 },
+		{ path: '/en/writing/my-first-video-game-was-a-distributed-system/', label: 'In this article', first: 'The game I imagined', count: 8 },
+	]) {
+		await page.setViewportSize({ width: 1280, height: 900 });
+		await page.goto(sample.path);
+		const toc = page.getByRole('navigation', { name: sample.label });
+		await expect(toc).toBeVisible();
+		await expect(toc.getByRole('link')).toHaveCount(sample.count);
+		const href = await toc.getByRole('link', { name: sample.first }).getAttribute('href');
+		expect(href).toMatch(/^#[a-z0-9-]+$/);
+		await expect(page.locator('h2' + href)).toHaveText(sample.first);
+	}
+});
+
+test('article navigation yields the full width to prose on mobile', async ({ page }) => {
+	await page.setViewportSize({ width: 390, height: 844 });
+	await page.goto('/it/articoli/il-mio-primo-videogioco-era-un-sistema-distribuito/');
+	await expect(page.getByRole('navigation', { name: "Indice dell'articolo" })).toBeHidden();
+	expect((await page.locator('.article-prose').boundingBox())!.width).toBeLessThanOrEqual(342);
+	expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+});
