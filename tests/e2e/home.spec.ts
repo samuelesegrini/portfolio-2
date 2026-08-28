@@ -216,6 +216,13 @@ test('technical case studies render their contextual explainer in both locales',
 			await expect(image).toHaveAttribute('src', asset);
 			await image.scrollIntoViewIfNeeded();
 			await expect.poll(() => image.evaluate((item: HTMLImageElement) => item.naturalWidth)).toBeGreaterThan(0);
+
+			await page.setViewportSize({ width: 390, height: 844 });
+			await page.goto(path);
+			const mobileExplainer = page.locator('.project-explainer');
+			expect((await mobileExplainer.boundingBox())!.width).toBeLessThanOrEqual(342);
+			expect(Number.parseFloat(await mobileExplainer.locator('figcaption').evaluate((item) => getComputedStyle(item).fontSize))).toBeGreaterThanOrEqual(11);
+			expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
 		}
 	}
 });
