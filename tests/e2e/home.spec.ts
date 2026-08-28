@@ -257,6 +257,28 @@ test('Galaxy Trucker and its AI reconstruction article link in both directions',
 	);
 });
 
+test('the Claude reconstruction separates conditions from supported conclusions', async ({ page }) => {
+	for (const sample of [
+		{
+			path: '/it/articoli/ricostruire-galaxy-trucker-con-claude/',
+			headers: ['Progetto originale', 'Ricostruzione assistita', 'Conclusione sostenibile'],
+		},
+		{
+			path: '/en/writing/rebuilding-galaxy-trucker-with-claude/',
+			headers: ['Original project', 'AI-assisted rebuild', 'Supported conclusion'],
+		},
+	]) {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto(sample.path);
+		const table = page.locator('.evidence-comparison');
+		for (const header of sample.headers) {
+			await expect(table.getByRole('columnheader', { name: header })).toBeVisible();
+		}
+		await expect(table).not.toContainText(/\d+x|percent|percento/i);
+		expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+	}
+});
+
 test('Galaxy Trucker links a second bilingual personal article', async ({ page }) => {
 	await page.goto('/it/progetti/galaxy-trucker-progetto-java/');
 	const personalArticle = page.locator('.related-section').locator(

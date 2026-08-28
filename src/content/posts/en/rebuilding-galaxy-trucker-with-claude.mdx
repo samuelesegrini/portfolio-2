@@ -40,6 +40,35 @@ I therefore describe the work as an **AI-assisted reconstruction**, not as evide
 
 The comparison also lacked a frozen experimental protocol. I did not record every prompt, separate active human time from model execution time, or implement the same milestone again without AI. Any claim that the rebuild was faster is consequently an engineering observation, not a controlled measurement.
 
+<div class="evidence-comparison" tabindex="0" role="region" aria-label="Evidence comparison">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Original project</th>
+        <th scope="col">AI-assisted rebuild</th>
+        <th scope="col">Supported conclusion</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Four people, domain learning, and an academic deadline</td>
+        <td>One agent, existing documentation, and my knowledge of earlier failures</td>
+        <td>The timelines are not directly comparable</td>
+      </tr>
+      <tr>
+        <td>Socket and RMI, TUI and GUI, and the course requirements</td>
+        <td>Similar scope with more robust persistence and reconnection</td>
+        <td>The rebuild does not repeat the same experiment</td>
+      </tr>
+      <tr>
+        <td>Decisions integrated while approaching submission</td>
+        <td>Ordered milestones and explicit exit criteria</td>
+        <td>Claude accelerates work most where verification is already cheap</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 ## Requirements as the contract
 
 The most effective decision was to treat the requirements as a verification surface rather than background reading. The rebuild started by rewriting them as checkable statements and ordering the work into milestones whose exit criteria could be demonstrated independently.

@@ -162,6 +162,12 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 .article-layout { display: grid; grid-template-columns: minmax(0,47rem); justify-content: center; gap: 3rem; padding: clamp(5rem,9vw,9rem) var(--page-padding); }
 .article-layout.has-toc { grid-template-columns: minmax(0,47rem) minmax(12rem,15rem); max-width: 70rem; margin: 0 auto; }
 .article-prose { min-width: 0; }
+.evidence-comparison { max-width: 100%; margin: 2rem 0 3rem; overflow-x: auto; border: 1px solid var(--line); background: var(--white); }
+.evidence-comparison table { width: 100%; min-width: 38rem; border-collapse: collapse; font: .82rem/1.45 var(--sans); }
+.evidence-comparison th, .evidence-comparison td { min-width: 12rem; padding: 1rem; vertical-align: top; text-align: left; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.evidence-comparison th:last-child, .evidence-comparison td:last-child { border-right: 0; }
+.evidence-comparison tr:last-child td { border-bottom: 0; }
+.evidence-comparison th { background: var(--acid); font-size: .72rem; letter-spacing: .025em; }
 .article-toc { position: sticky; top: 2rem; align-self: start; max-height: calc(100svh - 4rem); overflow: auto; padding-left: 1.25rem; border-left: 1px solid var(--line); font-family: var(--mono); font-size: .7rem; line-height: 1.5; }
 .article-toc > p { margin: 0 0 1rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
 .article-toc ol { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
