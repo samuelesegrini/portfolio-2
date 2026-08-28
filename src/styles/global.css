@@ -195,6 +195,11 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 .footer-links { display: flex; gap: 1.5rem; font-weight: 700; }
 .footer-links a:hover { text-decoration: underline; text-underline-offset: .35rem; }
 
+@media (max-width:1078px) {
+	.article-layout, .article-layout.has-toc { grid-template-columns: minmax(0,1fr); }
+	.article-toc { display: none; }
+}
+
 @media (max-width:760px) {
 	.desktop-nav { display: none !important; }
 	.mobile-menu { position: relative; display: block; }

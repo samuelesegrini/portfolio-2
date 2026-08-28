@@ -463,6 +463,14 @@ test('article navigation yields the full width to prose on mobile', async ({ pag
 	expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
 });
 
+test('article navigation collapses before its tracks overflow', async ({ page }) => {
+	await page.setViewportSize({ width: 1024, height: 844 });
+	await page.goto('/it/articoli/il-mio-primo-videogioco-era-un-sistema-distribuito/');
+	await expect(page.getByRole('navigation', { name: "Indice dell'articolo" })).toBeHidden();
+	expect((await page.locator('.article-prose').boundingBox())!.width).toBe(752);
+	expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(1024);
+});
+
 test('the first-game article explains authoritative multiplayer as four steps', async ({ page }) => {
 	for (const sample of [
 		{ path: '/it/articoli/il-mio-primo-videogioco-era-un-sistema-distribuito/', caption: 'Come un’azione diventa stato condiviso' },
