@@ -8,7 +8,7 @@ for (const { width, height } of [
 ]) {
 	test(`homepage has no serious accessibility violations at ${width}px`, async ({ page }) => {
 		await page.setViewportSize({ width, height });
-		await page.goto('/it/');
+		await page.goto('/it/', { waitUntil: 'networkidle' });
 		const results = await new AxeBuilder({ page }).analyze();
 		const serious = results.violations.filter(({ impact }) => impact === 'serious' || impact === 'critical');
 		expect(serious).toEqual([]);
