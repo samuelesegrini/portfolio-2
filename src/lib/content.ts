@@ -1,6 +1,38 @@
 export type Locale = 'it' | 'en';
 export type WorkKind = 'app' | 'package' | 'open-source' | 'experiment';
 export type FeaturedRank = 1 | 2 | 3;
+export type ProjectLifecycle = 'verified' | 'archived' | 'prototype' | 'in-progress';
+export type ProjectAuthorship = 'individual' | 'team' | 'contribution';
+export type LinkRelationship =
+	| 'my-repository'
+	| 'team-repository'
+	| 'live-demo'
+	| 'write-up'
+	| 'course-page';
+
+/** A measured result, kept beside the method that produced it. */
+export interface ProjectOutcome {
+	value: string;
+	label: string;
+	method?: string;
+}
+
+export interface ProjectLink {
+	url: string;
+	label: string;
+	relationship: LinkRelationship;
+}
+
+export interface RelatedPost {
+	key: string;
+	reason: string;
+}
+
+export interface Testimonial {
+	quote: string;
+	name: string;
+	role: string;
+}
 
 export interface LocalizedEntry {
 	translationKey: string;
@@ -11,19 +43,24 @@ export interface LocalizedEntry {
 	draft: boolean;
 	coverImage: string;
 	coverAlt: string;
+	socialImage?: string;
 	seoTitle?: string;
 	seoDescription?: string;
 }
 
 export interface ProjectEntry extends LocalizedEntry {
 	kind: WorkKind;
+	lifecycle: ProjectLifecycle;
+	authorship: ProjectAuthorship;
 	year: number;
 	role: string;
 	technologies: readonly string[];
 	featuredRank?: FeaturedRank;
-	repositoryURL?: string;
-	liveURL?: string;
-	relatedPostKeys: readonly string[];
+	outcomes: readonly ProjectOutcome[];
+	startingPoint?: string;
+	testimonial?: Testimonial;
+	links: readonly ProjectLink[];
+	relatedPosts: readonly RelatedPost[];
 }
 
 export interface PostEntry extends LocalizedEntry {
@@ -36,6 +73,9 @@ export interface PostEntry extends LocalizedEntry {
 type ContentEntry = ProjectEntry | PostEntry;
 
 const locales: readonly Locale[] = ['it', 'en'];
+const maximumDeckWords = 25;
+/** "A ", "An ", "Un ", "Uno ", "Una ", "Un'" — the category-noun opening a deck must avoid. */
+const indefiniteArticle = /^(?:an?|un[oa]?)\s|^un['’]/i;
 
 export function getTranslationPair<T extends ContentEntry>(
 	entries: readonly T[],
@@ -90,6 +130,7 @@ export function validateContentSet(
 	validateSharedPostMetadata(posts, errors);
 	validateEntries('Project', projects, errors);
 	validateEntries('Post', posts, errors);
+	validateProjectDecks(projects, errors);
 	validateFeaturedRanks(projects, errors);
 	validateRelationships(projects, posts, errors);
 	return errors;
@@ -133,13 +174,36 @@ function validateEntries<T extends ContentEntry>(
 		}
 
 		if ('kind' in entry) {
-			for (const url of [entry.repositoryURL, entry.liveURL]) {
-				if (url && !isValidHttpURL(url)) {
+			for (const { url } of entry.links) {
+				if (!isValidHttpURL(url)) {
 					errors.push(`${label} "${entry.translationKey}" contains an invalid external URL.`);
 				}
 			}
 		}
 	}
+}
+
+/**
+ * A project deck states a result, not a category. The category is already carried by `kind`
+ * and repeated on every card, so an excerpt that opens with an indefinite article spends its
+ * only sentence saying what the reader can already see.
+ */
+function validateProjectDecks(projects: readonly ProjectEntry[], errors: string[]) {
+	for (const project of projects.filter((entry) => !entry.draft)) {
+		const label = `Project "${project.translationKey}" (${project.locale}) excerpt`;
+
+		if (indefiniteArticle.test(project.excerpt.trimStart())) {
+			errors.push(`${label} must not open with an indefinite article.`);
+		}
+
+		if (countWords(project.excerpt) > maximumDeckWords) {
+			errors.push(`${label} must stay within ${maximumDeckWords} words.`);
+		}
+	}
+}
+
+function countWords(value: string): number {
+	return value.split(/\s+/).filter(Boolean).length;
 }
 
 function validateSharedProjectMetadata(projects: readonly ProjectEntry[], errors: string[]) {
@@ -153,17 +217,37 @@ function validateSharedProjectMetadata(projects: readonly ProjectEntry[], errors
 		const [first, second] = pair;
 		const sharedValuesMatch =
 			first.kind === second.kind &&
+			first.lifecycle === second.lifecycle &&
+			first.authorship === second.authorship &&
 			first.year === second.year &&
 			first.featuredRank === second.featuredRank &&
 			arraysEqual(first.technologies, second.technologies) &&
-			arraysEqual(first.relatedPostKeys, second.relatedPostKeys);
+			arraysEqual(destinations(first), destinations(second)) &&
+			arraysEqual(
+				first.relatedPosts.map(({ key: postKey }) => postKey),
+				second.relatedPosts.map(({ key: postKey }) => postKey),
+			);
 
 		if (!sharedValuesMatch) {
 			errors.push(
-				`Project "${key}" must share kind, year, technologies, rank, and relationships.`,
+				`Project "${key}" must share kind, lifecycle, authorship, year, technologies, rank, and relationships.`,
 			);
 		}
+
+		// Outcome values carry locale-specific number formatting ("89.2" against "89,2"), so the
+		// pair is held to the same count rather than the same strings.
+		if (first.outcomes.length !== second.outcomes.length) {
+			errors.push(`Project "${key}" must report the same number of outcomes in each locale.`);
+		}
+
+		if (!arraysEqual(first.outcomes.map(({ value }) => value), second.outcomes.map(({ value }) => value))) {
+			errors.push(`Project "${key}" must report the same outcome values in each locale.`);
+		}
 	}
+}
+
+function destinations(project: ProjectEntry): string[] {
+	return project.links.map(({ url, relationship }) => `${relationship} ${url}`);
 }
 
 function validateSharedPostMetadata(posts: readonly PostEntry[], errors: string[]) {
@@ -216,7 +300,7 @@ function validateRelationships(
 	const postKeys = completePublishedKeys(posts);
 
 	for (const project of projects.filter((entry) => !entry.draft)) {
-		for (const postKey of project.relatedPostKeys) {
+		for (const { key: postKey } of project.relatedPosts) {
 			if (!postKeys.has(postKey)) {
 				errors.push(
 					`Project "${project.translationKey}" references missing published post "${postKey}".`,

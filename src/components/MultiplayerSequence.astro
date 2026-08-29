@@ -5,8 +5,10 @@ interface Props {
 
 const { lang } = Astro.props;
 const copy = lang === 'it'
-	? {
+		? {
 			caption: 'Come un’azione diventa stato condiviso: il client propone, il server decide e tutti ricevono la stessa nuova realtà.',
+			authority: 'Server autorevole',
+			clients: ['Client TUI', 'Client GUI'],
 			steps: [
 				['01', 'Azione del giocatore', 'Il client invia un’intenzione, non modifica la partita.'],
 				['02', 'Validazione del server', 'Regole, fase e permessi stabiliscono se l’azione sia ammessa.'],
@@ -14,8 +16,10 @@ const copy = lang === 'it'
 				['04', 'Propagazione ai client', 'TUI e GUI ricevono una nuova vista coerente della partita.'],
 			],
 		}
-	: {
+		: {
 			caption: 'How one action becomes shared state: the client proposes, the server decides, and everyone receives the same new reality.',
+			authority: 'Authoritative server',
+			clients: ['TUI client', 'GUI client'],
 			steps: [
 				['01', 'Player action', 'The client sends an intention; it does not mutate the match.'],
 				['02', 'Server validation', 'Rules, phase, and permissions decide whether the action is allowed.'],
@@ -25,7 +29,8 @@ const copy = lang === 'it'
 		};
 ---
 
-<figure class="multiplayer-sequence">
+<figure class="multiplayer-sequence multiplayer-system-flow">
+	<div class="system-participants" aria-hidden="true"><span>{copy.clients[0]}</span><strong class="authority-boundary">{copy.authority}</strong><span>{copy.clients[1]}</span></div>
 	<ol>
 		{copy.steps.map(([number, title, description]) => (
 			<li>

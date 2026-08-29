@@ -1,0 +1,30 @@
+---
+interface Props { lang: 'it' | 'en' }
+const { lang } = Astro.props;
+const copy = lang === 'it'
+	? {
+		label: 'Confronto delle evidenze della ricostruzione AI',
+		headers: ['Progetto originale', 'Ricostruzione assistita', 'Conclusione sostenibile'],
+		rows: [
+			['Quattro persone, apprendimento del dominio e scadenza accademica', 'Un agente, documentazione esistente e conoscenza degli errori precedenti', 'Le tempistiche non sono direttamente confrontabili'],
+			['Socket e RMI, TUI e GUI, requisiti del corso', 'Perimetro simile con persistenza e riconnessione più robuste', 'La ricostruzione non ripete lo stesso esperimento'],
+			['Decisioni integrate avvicinandosi alla consegna', 'Milestone ordinate e criteri di uscita espliciti', 'Claude accelera soprattutto il lavoro già reso verificabile'],
+		],
+	}
+	: {
+		label: 'AI reconstruction evidence comparison',
+		headers: ['Original project', 'AI-assisted rebuild', 'Supported conclusion'],
+		rows: [
+			['Four people, domain learning, and an academic deadline', 'One agent, existing documentation, and knowledge of earlier failures', 'The timelines are not directly comparable'],
+			['Socket and RMI, TUI and GUI, and the course requirements', 'Similar scope with more robust persistence and reconnection', 'The rebuild does not repeat the same experiment'],
+			['Decisions integrated while approaching submission', 'Ordered milestones and explicit exit criteria', 'Claude accelerates work most where verification is already cheap'],
+		],
+	};
+---
+
+<div class="evidence-comparison rebuild-evidence" role="region" aria-label={copy.label} tabindex="0">
+	<table>
+		<thead><tr>{copy.headers.map((header) => <th scope="col">{header}</th>)}</tr></thead>
+		<tbody>{copy.rows.map((row) => <tr>{row.map((cell) => <td>{cell}</td>)}</tr>)}</tbody>
+	</table>
+</div>

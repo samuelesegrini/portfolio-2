@@ -26,6 +26,11 @@ Copy `.env.example` to `.env` when configuring TinaCloud or a real canonical ori
 - A non-draft entry is valid only when its non-draft translation exists.
 - The homepage must contain ranks 1, 2, and 3 exactly once per locale.
 - Cross-language metadata and related-content keys are validated during every build.
+- A project `excerpt` is one outcome-led sentence under 25 words. It must contain a finite verb, include a supported number when useful, and must not begin with an indefinite article such as `A`, `An`, `Un`, or `Una`.
+- `outcomes` contain inspectable facts; `method` records how each value was obtained. Values, lifecycle, authorship, link destinations, and relationships must match across translations.
+- `lifecycle` is one of `verified`, `archived`, `prototype`, or `in-progress`; `authorship` is `individual`, `team`, or `contribution`.
+- External links must state their relationship to the work. Related articles include a localized reason to read rather than a generic backlink.
+- A project may contain at most one real attributed testimonial. Never create one as presentation copy.
 
 TinaCMS exposes the same fields at `/admin/`. Saving incomplete or invalid bilingual content can fail a preview build; Cloudflare keeps the last successful production deployment.
 

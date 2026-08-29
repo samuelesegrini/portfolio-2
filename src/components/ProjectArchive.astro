@@ -28,6 +28,12 @@ const labels = isIt
 const cardLabels = isIt
 	? { app: 'App', package: 'Pacchetto', 'open-source': 'Open source', experiment: 'Esperimento' }
 	: { app: 'App', package: 'Package', 'open-source': 'Open source', experiment: 'Experiment' };
+const lifecycleLabels = isIt
+	? { verified: 'Verificato', archived: 'Archiviato', prototype: 'Prototipo', 'in-progress': 'In corso' }
+	: { verified: 'Verified', archived: 'Archived', prototype: 'Prototype', 'in-progress': 'In progress' };
+const authorshipLabels = isIt
+	? { individual: 'Individuale', team: 'Team', contribution: 'Contributo' }
+	: { individual: 'Individual', team: 'Team', contribution: 'Contribution' };
 const tones = ['blue', 'lime', 'violet', 'orange', 'paper'] as const;
 ---
 
@@ -64,6 +70,9 @@ const tones = ['blue', 'lime', 'violet', 'orange', 'paper'] as const;
 					archive
 					coverImage={project.coverImage}
 					coverAlt={project.coverAlt}
+					outcome={project.outcomes[0]}
+					lifecycleLabel={lifecycleLabels[project.lifecycle]}
+					authorshipLabel={authorshipLabels[project.authorship]}
 				/>
 			))}
 		</div>

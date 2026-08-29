@@ -15,32 +15,52 @@ const projects = [
 		locale: 'it',
 		slug: 'progetto-uno',
 		title: 'Progetto uno',
-		excerpt: 'Descrizione italiana.',
+		excerpt: 'Tre schermate sostituiscono un flusso manuale di quindici passaggi.',
 		draft: false,
 		coverImage: '/images/placeholders/project-one.png',
 		coverAlt: 'Composizione astratta verde',
 		kind: 'app',
+		lifecycle: 'verified',
+		authorship: 'individual',
 		year: 2026,
 		role: 'Software Engineer',
 		technologies: ['Swift'],
 		featuredRank: 1,
-		relatedPostKeys: ['post-one'],
+		outcomes: [{ value: '3', label: 'schermate' }],
+		links: [
+			{
+				url: 'https://example.com/repo',
+				label: 'Repository',
+				relationship: 'my-repository',
+			},
+		],
+		relatedPosts: [{ key: 'post-one', reason: 'Come sono arrivato a tre schermate.' }],
 	},
 	{
 		translationKey: 'project-one',
 		locale: 'en',
 		slug: 'project-one',
 		title: 'Project one',
-		excerpt: 'English description.',
+		excerpt: 'Three screens replace a fifteen-step manual flow.',
 		draft: false,
 		coverImage: '/images/placeholders/project-one.png',
 		coverAlt: 'Abstract green composition',
 		kind: 'app',
+		lifecycle: 'verified',
+		authorship: 'individual',
 		year: 2026,
 		role: 'Software Engineer',
 		technologies: ['Swift'],
 		featuredRank: 1,
-		relatedPostKeys: ['post-one'],
+		outcomes: [{ value: '3', label: 'screens' }],
+		links: [
+			{
+				url: 'https://example.com/repo',
+				label: 'Repository',
+				relationship: 'my-repository',
+			},
+		],
+		relatedPosts: [{ key: 'post-one', reason: 'How the flow became three screens.' }],
 	},
 	...(['two', 'three'] as const).flatMap<ProjectEntry>((name, index) => [
 		{
@@ -48,32 +68,40 @@ const projects = [
 			locale: 'it',
 			slug: `progetto-${name}`,
 			title: `Progetto ${name}`,
-			excerpt: 'Descrizione italiana.',
+			excerpt: 'Il modulo dimezza il tempo di build su ogni commit.',
 			draft: false,
 			coverImage: `/images/placeholders/project-${name}.png`,
 			coverAlt: 'Composizione astratta',
 			kind: index === 0 ? 'package' : 'experiment',
+			lifecycle: index === 0 ? 'verified' : 'prototype',
+			authorship: 'individual',
 			year: 2026,
 			role: 'Software Engineer',
 			technologies: ['TypeScript'],
 			featuredRank: (index + 2) as 2 | 3,
-			relatedPostKeys: [],
+			outcomes: [],
+			links: [],
+			relatedPosts: [],
 		},
 		{
 			translationKey: `project-${name}`,
 			locale: 'en',
 			slug: `project-${name}`,
 			title: `Project ${name}`,
-			excerpt: 'English description.',
+			excerpt: 'The module halves build time on every commit.',
 			draft: false,
 			coverImage: `/images/placeholders/project-${name}.png`,
 			coverAlt: 'Abstract composition',
 			kind: index === 0 ? 'package' : 'experiment',
+			lifecycle: index === 0 ? 'verified' : 'prototype',
+			authorship: 'individual',
 			year: 2026,
 			role: 'Software Engineer',
 			technologies: ['TypeScript'],
 			featuredRank: (index + 2) as 2 | 3,
-			relatedPostKeys: [],
+			outcomes: [],
+			links: [],
+			relatedPosts: [],
 		},
 	]),
 ] satisfies readonly ProjectEntry[];
@@ -126,7 +154,60 @@ describe('validateContentSet', () => {
 				: project,
 		);
 		expect(validateContentSet(mismatched, posts)).toContain(
-			'Project "project-one" must share kind, year, technologies, rank, and relationships.',
+			'Project "project-one" must share kind, lifecycle, authorship, year, technologies, rank, and relationships.',
+		);
+	});
+
+	test('rejects an outcome list whose length differs between translations', () => {
+		const mismatched = projects.map((project) =>
+			project.translationKey === 'project-one' && project.locale === 'en'
+				? { ...project, outcomes: [] }
+				: project,
+		);
+		expect(validateContentSet(mismatched, posts)).toContain(
+			'Project "project-one" must report the same number of outcomes in each locale.',
+		);
+	});
+
+	test('rejects lifecycle or authorship that differs between translations', () => {
+		const mismatched = projects.map((project) =>
+			project.translationKey === 'project-one' && project.locale === 'en'
+				? { ...project, lifecycle: 'archived' as const, authorship: 'team' as const }
+				: project,
+		);
+		expect(validateContentSet(mismatched, posts)).toContain(
+			'Project "project-one" must share kind, lifecycle, authorship, year, technologies, rank, and relationships.',
+		);
+	});
+
+	test('rejects outcome values that drift between translations', () => {
+		const mismatched = projects.map((project) =>
+			project.translationKey === 'project-one' && project.locale === 'en'
+				? { ...project, outcomes: [{ value: '4', label: 'screens' }] }
+				: project,
+		);
+		expect(validateContentSet(mismatched, posts)).toContain(
+			'Project "project-one" must report the same outcome values in each locale.',
+		);
+	});
+
+	test('rejects external links that differ in destination or relationship between translations', () => {
+		const mismatched = projects.map((project) =>
+			project.translationKey === 'project-one' && project.locale === 'en'
+				? {
+						...project,
+						links: [
+							{
+								url: 'https://example.com/repo',
+								label: 'Repository',
+								relationship: 'team-repository' as const,
+							},
+						],
+					}
+				: project,
+		);
+		expect(validateContentSet(mismatched, posts)).toContain(
+			'Project "project-one" must share kind, lifecycle, authorship, year, technologies, rank, and relationships.',
 		);
 	});
 
@@ -142,7 +223,7 @@ describe('validateContentSet', () => {
 	test('rejects related-content keys that do not resolve to published bilingual content', () => {
 		const brokenProjects = projects.map((project) =>
 			project.translationKey === 'project-one'
-				? { ...project, relatedPostKeys: ['missing-post'] }
+				? { ...project, relatedPosts: [{ key: 'missing-post', reason: 'Perché.' }] }
 				: project,
 		);
 		expect(validateContentSet(brokenProjects, posts)).toContain(
@@ -164,7 +245,13 @@ describe('validateContentSet', () => {
 	test('rejects blank image alternatives and malformed project links', () => {
 		const malformed = projects.map((project) =>
 			project.translationKey === 'project-one' && project.locale === 'it'
-				? { ...project, coverAlt: ' ', liveURL: 'not-a-url' }
+				? {
+						...project,
+						coverAlt: ' ',
+						links: [
+							{ url: 'not-a-url', label: 'Repository', relationship: 'my-repository' as const },
+						],
+					}
 				: project,
 		);
 		const errors = validateContentSet(malformed, posts);
@@ -178,6 +265,44 @@ describe('validateContentSet', () => {
 		);
 		expect(validateContentSet(missingRank, posts)).toContain(
 			'Locale "it" must contain featured project ranks 1, 2, and 3 exactly once.',
+		);
+	});
+});
+
+describe('project excerpts read as outcome decks', () => {
+	const withExcerpt = (excerpt: string, locale: 'it' | 'en' = 'en') =>
+		projects.map((project) =>
+			project.translationKey === 'project-one' && project.locale === locale
+				? { ...project, excerpt }
+				: project,
+		);
+
+	test.each([
+		['A C program that manages service stations and electric vehicles.', 'en'],
+		['An HCI project that turns user research into a mobile ecosystem.', 'en'],
+		['Un componente hardware che mantiene una coda ordinata in RAM.', 'it'],
+		['Una piccola esplorazione per mostrare curiosità visiva.', 'it'],
+		["Un'app che riordina la coda dei task.", 'it'],
+	] as const)('rejects the category-noun opening %j', (excerpt, locale) => {
+		expect(validateContentSet(withExcerpt(excerpt, locale), posts)).toContain(
+			`Project "project-one" (${locale}) excerpt must not open with an indefinite article.`,
+		);
+	});
+
+	test('accepts a deck that opens with a number, a subject, or a definite article', () => {
+		for (const excerpt of [
+			'109 survey responses became an app scoring 89.2 SUS.',
+			'Binary search plans the fewest-stop route while stations keep changing.',
+			'The module halves build time on every commit.',
+		]) {
+			expect(validateContentSet(withExcerpt(excerpt), posts)).toEqual([]);
+		}
+	});
+
+	test('rejects a deck longer than twenty-five words', () => {
+		const longDeck = `Four people shipped ${'word '.repeat(23)}today.`;
+		expect(validateContentSet(withExcerpt(longDeck), posts)).toContain(
+			'Project "project-one" (en) excerpt must stay within 25 words.',
 		);
 	});
 });

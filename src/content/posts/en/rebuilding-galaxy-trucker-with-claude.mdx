@@ -17,6 +17,8 @@ tags:
 relatedProjectKey: galaxy-trucker
 ---
 
+import RebuildEvidenceComparison from '../../../components/RebuildEvidenceComparison.astro';
+
 > I returned to a completed university project with a deliberately uncomfortable question: if Claude received the same requirements, could it rebuild the system faster without losing the reasoning behind the team's decisions?
 >
 > The answer is more useful than a simple yes. Claude accelerated implementation and made some architectural alternatives cheaper to explore. It did not remove the need to define correctness, choose trade-offs, or verify that a plausible solution actually represented the game.
@@ -40,34 +42,7 @@ I therefore describe the work as an **AI-assisted reconstruction**, not as evide
 
 The comparison also lacked a frozen experimental protocol. I did not record every prompt, separate active human time from model execution time, or implement the same milestone again without AI. Any claim that the rebuild was faster is consequently an engineering observation, not a controlled measurement.
 
-<div class="evidence-comparison" tabindex="0" role="region" aria-label="Evidence comparison">
-  <table>
-    <thead>
-      <tr>
-        <th scope="col">Original project</th>
-        <th scope="col">AI-assisted rebuild</th>
-        <th scope="col">Supported conclusion</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Four people, domain learning, and an academic deadline</td>
-        <td>One agent, existing documentation, and my knowledge of earlier failures</td>
-        <td>The timelines are not directly comparable</td>
-      </tr>
-      <tr>
-        <td>Socket and RMI, TUI and GUI, and the course requirements</td>
-        <td>Similar scope with more robust persistence and reconnection</td>
-        <td>The rebuild does not repeat the same experiment</td>
-      </tr>
-      <tr>
-        <td>Decisions integrated while approaching submission</td>
-        <td>Ordered milestones and explicit exit criteria</td>
-        <td>Claude accelerates work most where verification is already cheap</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<RebuildEvidenceComparison lang="en" />
 
 ## Requirements as the contract
 

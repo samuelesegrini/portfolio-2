@@ -14,6 +14,8 @@ interface Props {
 	alternateIt?: string;
 	alternateEn?: string;
 	ogType?: 'website' | 'article';
+	image?: string;
+	imageAlt?: string;
 	structuredData?: Record<string, unknown> | Record<string, unknown>[];
 	noIndex?: boolean;
 }
@@ -27,10 +29,14 @@ const {
 	alternateIt = '/it/',
 	alternateEn = '/en/',
 	ogType = 'website',
+	image,
+	imageAlt,
 	structuredData,
 	noIndex = false,
 } = Astro.props;
 const canonicalURL = new URL(canonicalPath, siteConfig.siteURL);
+const imageURL = image ? new URL(image, siteConfig.siteURL) : undefined;
+const feedURL = new URL(lang === 'it' ? '/it/rss.xml' : '/en/rss.xml', siteConfig.siteURL);
 const labels =
 	lang === 'it'
 		? {
@@ -68,6 +74,7 @@ const aboutURL = lang === 'it' ? '/it/chi-sono/' : '/en/about/';
 		<link rel="alternate" hreflang="it" href={new URL(alternateIt, siteConfig.siteURL)} />
 		<link rel="alternate" hreflang="en" href={new URL(alternateEn, siteConfig.siteURL)} />
 		<link rel="alternate" hreflang="x-default" href={new URL(alternateIt, siteConfig.siteURL)} />
+		<link rel="alternate" type="application/rss+xml" title={lang === 'it' ? 'Articoli — RSS' : 'Writing — RSS'} href={feedURL} />
 		<link rel="icon" href="/favicon.ico" sizes="any" />
 		{noIndex && <meta name="robots" content="noindex, nofollow" />}
 		<meta property="og:type" content={ogType} />
@@ -75,7 +82,10 @@ const aboutURL = lang === 'it' ? '/it/chi-sono/' : '/en/about/';
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={canonicalURL} />
 		<meta property="og:locale" content={lang === 'it' ? 'it_IT' : 'en_US'} />
-		<meta name="twitter:card" content="summary" />
+		{imageURL && <meta property="og:image" content={imageURL} />}
+		{imageURL && imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+		{imageURL && <meta name="twitter:image" content={imageURL} />}
+		<meta name="twitter:card" content="summary_large_image" />
 		{structuredData && <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
 		<title>{title}</title>
 	</head>

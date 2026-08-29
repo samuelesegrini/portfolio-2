@@ -17,6 +17,8 @@ tags:
 relatedProjectKey: galaxy-trucker
 ---
 
+import RebuildEvidenceComparison from '../../../components/RebuildEvidenceComparison.astro';
+
 > Sono tornato su un progetto universitario completato con una domanda volutamente scomoda: se Claude avesse ricevuto gli stessi requisiti, avrebbe potuto ricostruire il sistema più velocemente senza perdere il ragionamento dietro le decisioni del team?
 >
 > La risposta è più utile di un semplice sì. Claude ha accelerato l'implementazione e reso meno costoso esplorare alternative architetturali. Non ha eliminato la necessità di definire la correttezza, scegliere i compromessi o verificare che una soluzione plausibile rappresentasse davvero il gioco.
@@ -40,34 +42,7 @@ Descrivo quindi il lavoro come **ricostruzione assistita da AI**, non come prova
 
 Il confronto non aveva nemmeno un protocollo sperimentale congelato. Non ho registrato ogni prompt, separato il tempo umano attivo dal tempo di esecuzione del modello o implementato la stessa milestone una seconda volta senza AI. Qualsiasi affermazione sulla maggiore velocità del rebuild è quindi un'osservazione ingegneristica, non una misurazione controllata.
 
-<div class="evidence-comparison" tabindex="0" role="region" aria-label="Confronto delle evidenze">
-  <table>
-    <thead>
-      <tr>
-        <th scope="col">Progetto originale</th>
-        <th scope="col">Ricostruzione assistita</th>
-        <th scope="col">Conclusione sostenibile</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Quattro persone, apprendimento del dominio e scadenza accademica</td>
-        <td>Un agente, documentazione esistente e conoscenza degli errori precedenti</td>
-        <td>I tempi non sono direttamente confrontabili</td>
-      </tr>
-      <tr>
-        <td>Socket e RMI, TUI e GUI, requisiti del corso</td>
-        <td>Perimetro simile con persistenza e riconnessione più robuste</td>
-        <td>La ricostruzione non replica lo stesso esperimento</td>
-      </tr>
-      <tr>
-        <td>Decisioni integrate durante la consegna</td>
-        <td>Milestone ordinate e criteri di uscita espliciti</td>
-        <td>Claude accelera soprattutto il lavoro già reso verificabile</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<RebuildEvidenceComparison lang="it" />
 
 ## I requisiti come contratto
 

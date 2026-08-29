@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import { siteConfig } from '../config/site';
 import { findPostDocument, findProjectDocument, getPortfolioContent, postPath, projectPath, type ProjectDocument } from '../lib/portfolio';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleTableOfContents from './ArticleTableOfContents.astro';
 import RelatedWritingList from './RelatedWritingList.astro';
 
 interface Props { document: ProjectDocument }
@@ -12,16 +13,13 @@ const { projectDocuments, postDocuments } = await getPortfolioContent();
 const otherLocale = project.locale === 'it' ? 'en' : 'it';
 const translation = findProjectDocument(projectDocuments, project.translationKey, otherLocale);
 if (!translation) throw new Error(`Missing translation for project ${project.translationKey}`);
-const { Content } = await render(document);
-const relatedPosts = project.relatedPostKeys
-	.map((key) => findPostDocument(postDocuments, key, project.locale))
-	.filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
-const relatedWriting = relatedPosts.map(({ data }) => ({
-	title: data.title,
-	excerpt: data.excerpt,
-	href: postPath(data),
-	publishedAt: data.publishedAt,
-}));
+const { Content, headings } = await render(document);
+const tocHeadings = headings.filter(({ depth }) => depth === 2 || depth === 3);
+const showTableOfContents = tocHeadings.filter(({ depth }) => depth === 2).length >= 3;
+const relatedWriting = project.relatedPosts.flatMap(({ key, reason }) => {
+	const related = findPostDocument(postDocuments, key, project.locale);
+	return related ? [{ title: related.data.title, reason, href: postPath(related.data) }] : [];
+});
 const isIt = project.locale === 'it';
 const currentPath = projectPath(project);
 const translationPath = projectPath(translation.data);
@@ -30,6 +28,15 @@ const englishPath = isIt ? translationPath : currentPath;
 const kindLabel = isIt
 	? { app: 'App', package: 'Pacchetto', 'open-source': 'Open source', experiment: 'Esperimento' }[project.kind]
 	: { app: 'App', package: 'Package', 'open-source': 'Open source', experiment: 'Experiment' }[project.kind];
+const lifecycleLabel = (isIt
+	? { verified: 'Verificato', archived: 'Archiviato', prototype: 'Prototipo', 'in-progress': 'In corso' }
+	: { verified: 'Verified', archived: 'Archived', prototype: 'Prototype', 'in-progress': 'In progress' })[project.lifecycle];
+const authorshipLabel = (isIt
+	? { individual: 'Lavoro individuale', team: 'Lavoro di squadra', contribution: 'Contributo' }
+	: { individual: 'Individual work', team: 'Team work', contribution: 'Contribution' })[project.authorship];
+const relationshipLabels = isIt
+	? { 'my-repository': 'Repository personale', 'team-repository': 'Repository del team', 'live-demo': 'Demo pubblica', 'write-up': 'Approfondimento', 'course-page': 'Pagina del corso' }
+	: { 'my-repository': 'My repository', 'team-repository': 'Team repository', 'live-demo': 'Live demo', 'write-up': 'Write-up', 'course-page': 'Course page' };
 const structuredData = {
 	'@context': 'https://schema.org',
 	'@type': 'CreativeWork',
@@ -50,6 +57,8 @@ const structuredData = {
 	alternateIt={italianPath}
 	alternateEn={englishPath}
 	structuredData={structuredData}
+	image={project.socialImage ?? project.coverImage}
+	imageAlt={project.coverAlt}
 >
 	<article class="case-study">
 		<header class="detail-hero dark-section">
@@ -59,16 +68,20 @@ const structuredData = {
 		</header>
 		<div class="detail-grid section">
 			<aside aria-label={isIt ? 'Dettagli del progetto' : 'Project details'}>
+				{project.outcomes.length > 0 && <div class="project-outcomes"><span>{isIt ? 'Risultati' : 'Outcomes'}</span><dl>{project.outcomes.map((outcome) => <div><dt>{outcome.value}</dt><dd>{outcome.label}{outcome.method && <small>{outcome.method}</small>}</dd></div>)}</dl></div>}
+				<div><span>{isIt ? 'Stato' : 'Status'}</span><strong>{lifecycleLabel}</strong></div>
+				<div><span>{isIt ? 'Paternità' : 'Authorship'}</span><strong>{authorshipLabel}</strong></div>
 				<div><span>{isIt ? 'Anno' : 'Year'}</span><strong>{project.year}</strong></div>
 				<div><span>{isIt ? 'Tipo' : 'Type'}</span><strong>{kindLabel}</strong></div>
 				<div><span>{isIt ? 'Ruolo' : 'Role'}</span><strong>{project.role}</strong></div>
 				<div><span>{isIt ? 'Tecnologie' : 'Technologies'}</span><strong>{project.technologies.join(', ')}</strong></div>
+				{project.startingPoint && <div><span>{isIt ? 'Punto di partenza' : 'Starting point'}</span><strong>{project.startingPoint}</strong></div>}
 				{relatedWriting.length > 0 && <div class="project-writing"><span>{isIt ? 'Approfondimenti' : 'Go deeper'}</span><RelatedWritingList entries={relatedWriting} lang={project.locale} compact /></div>}
+				{project.links.length > 0 && <div class="project-links"><span>{isIt ? 'Collegamenti esterni' : 'External links'}</span><ul>{project.links.map((link) => <li><a href={link.url} target="_blank" rel="noopener noreferrer"><strong>{link.label}</strong><small>{new URL(link.url).hostname}</small><em>{relationshipLabels[link.relationship]}</em></a></li>)}</ul></div>}
 				<div class="project-actions">
-					{project.repositoryURL && <a class="primary-button project-repository" href={project.repositoryURL} target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>}
-					{project.liveURL && <a href={project.liveURL} target="_blank" rel="noreferrer">{isIt ? 'Visita il progetto' : 'Visit project'} <span aria-hidden="true">↗</span></a>}
-					<a class:list={['project-contact', { 'primary-button': !project.repositoryURL }]} href={`mailto:${siteConfig.email}`}>{isIt ? 'Parliamone' : "Let's talk"} <span aria-hidden="true">↗</span></a>
+					<a class="primary-button project-contact" href={`mailto:${siteConfig.email}`}>{isIt ? 'Parliamone' : "Let's talk"} <span aria-hidden="true">↗</span></a>
 				</div>
+				{showTableOfContents && <ArticleTableOfContents headings={tocHeadings} lang={project.locale} context="project" />}
 			</aside>
 			<div class="prose"><Content /></div>
 		</div>

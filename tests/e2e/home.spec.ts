@@ -91,11 +91,11 @@ test('third featured project publishes the bilingual SpinGO case study', async (
 	await expect(
 		page.getByText('Frontend developer e membro del team HCI', { exact: true }),
 	).toBeVisible();
-	await expect(page.locator('.project-actions').getByRole('link', { name: 'GitHub' })).toHaveAttribute(
+	await expect(page.locator('.project-links').getByRole('link', { name: /Repository del team/ })).toHaveAttribute(
 		'href',
 		'https://github.com/milenaramosduran/hci-eco',
 	);
-	await expect(page.getByRole('link', { name: 'Visita il progetto' })).toHaveAttribute(
+	await expect(page.locator('.project-links').getByRole('link', { name: /Sito del progetto/ })).toHaveAttribute(
 		'href',
 		'https://milenaramosduran.github.io/hci-eco/',
 	);
@@ -103,8 +103,8 @@ test('third featured project publishes the bilingual SpinGO case study', async (
 		'href',
 		'/en/projects/spingo-sustainable-micromobility/',
 	);
-	await expect(page.locator('.project-results')).toContainText('109');
-	await expect(page.locator('.project-results')).toContainText('89,2');
+	await expect(page.locator('.project-outcomes')).toContainText('109');
+	await expect(page.locator('.project-outcomes')).toContainText('89.2');
 
 	await page.goto('/en/projects/spingo-sustainable-micromobility/');
 	await expect(
@@ -308,21 +308,19 @@ test('Galaxy Trucker links a second bilingual personal article', async ({ page }
 	);
 });
 
-test('repository evidence is the primary project action when available', async ({ page }) => {
+test('project links identify ownership while contact remains the primary action', async ({ page }) => {
 	await page.goto('/it/progetti/spingo-micromobilita-sostenibile/');
-	const repository = page.locator('.project-actions').getByRole('link', { name: 'GitHub' });
+	const repository = page.locator('.project-links').getByRole('link', { name: /Repository del team/ });
 	const contact = page.getByRole('link', { name: 'Parliamone' });
 
 	await expect(repository).toBeVisible();
+	await expect(repository).toContainText('github.com');
+	await expect(repository).toContainText('Repository del team');
 	await expect(contact).toBeVisible();
-	const repositoryBackground = await repository.evaluate(
-		(element) => getComputedStyle(element).backgroundColor,
-	);
 	const contactBackground = await contact.evaluate(
 		(element) => getComputedStyle(element).backgroundColor,
 	);
-	expect(repositoryBackground).toBe('rgb(199, 255, 159)');
-	expect(contactBackground).not.toBe(repositoryBackground);
+	expect(contactBackground).toBe('rgb(199, 255, 159)');
 });
 
 test('project cover remains wide while using a compact editorial crop', async ({ page }) => {
@@ -336,7 +334,56 @@ test('project cover remains wide while using a compact editorial crop', async ({
 	expect(box!.height / box!.width).toBeLessThan(0.4);
 });
 
-test('project sections use an editorial heading-and-copy grid on desktop', async ({ page }) => {
+test('project cover aligns beneath the primary title column on desktop', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 900 });
+	await page.goto('/it/progetti/pianificatore-percorsi-autostradali/');
+
+	const titleColumn = await page.locator('.detail-title > div').boundingBox();
+	const titleGrid = await page.locator('.detail-title').boundingBox();
+	const cover = await page.locator('.detail-hero > img').boundingBox();
+
+	expect(titleColumn).not.toBeNull();
+	expect(titleGrid).not.toBeNull();
+	expect(cover).not.toBeNull();
+	expect(Math.abs(cover!.x - titleColumn!.x)).toBeLessThanOrEqual(1);
+	expect(Math.abs(cover!.width - titleColumn!.width)).toBeLessThanOrEqual(1);
+	expect(cover!.width).toBeLessThan(titleGrid!.width);
+});
+
+test('project detail eyebrow starts closer to the site header', async ({ page }) => {
+	for (const viewport of [
+		{ width: 1280, height: 900 },
+		{ width: 390, height: 844 },
+	]) {
+		await page.setViewportSize(viewport);
+		await page.goto('/it/progetti/pianificatore-percorsi-autostradali/');
+
+		const topPadding = await page.locator('.detail-hero').evaluate(
+			(element) => Number.parseFloat(getComputedStyle(element).paddingTop),
+		);
+		expect(topPadding).toBeGreaterThanOrEqual(112);
+		expect(topPadding).toBeLessThanOrEqual(128);
+	}
+});
+
+test('project hero stays near one viewport without clipping short desktop layouts', async ({ page }) => {
+	for (const sample of [
+		{ viewport: { width: 1440, height: 900 }, maxRatio: 1.05 },
+		{ viewport: { width: 1280, height: 720 }, maxRatio: 1.2 },
+	]) {
+		await page.setViewportSize(sample.viewport);
+		await page.goto('/it/progetti/pianificatore-percorsi-autostradali/');
+
+		const dimensions = await page.locator('.detail-hero').evaluate((hero) => ({
+			heroHeight: hero.getBoundingClientRect().height,
+			coverHeight: hero.querySelector('img')?.getBoundingClientRect().height ?? 0,
+		}));
+		expect(dimensions.heroHeight / sample.viewport.height).toBeLessThanOrEqual(sample.maxRatio);
+		expect(dimensions.coverHeight).toBeGreaterThanOrEqual(224);
+	}
+});
+
+test('project headings stay in the reading column while the rail provides navigation', async ({ page }) => {
 	await page.setViewportSize({ width: 1280, height: 900 });
 	await page.goto('/it/progetti/pianificatore-percorsi-autostradali/');
 
@@ -347,8 +394,8 @@ test('project sections use an editorial heading-and-copy grid on desktop', async
 
 	expect(headingBox).not.toBeNull();
 	expect(paragraphBox).not.toBeNull();
-	expect(paragraphBox!.x - headingBox!.x).toBeGreaterThan(280);
-	expect(Math.abs(paragraphBox!.y - headingBox!.y)).toBeLessThan(48);
+	expect(Math.abs(paragraphBox!.x - headingBox!.x)).toBeLessThan(8);
+	await expect(page.getByRole('navigation', { name: 'Indice del progetto' })).toContainText('Dalla specifica al problema');
 });
 
 test('project lead is integrated into the reading surface instead of a boxed callout', async ({
@@ -453,6 +500,156 @@ test('long articles expose bilingual generated navigation', async ({ page }) => 
 		expect(href).toMatch(/^#[a-z0-9-]+$/);
 		await expect(page.locator('h2' + href)).toHaveText(sample.first);
 	}
+});
+
+test('article navigation follows the chapter currently being read', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 900 });
+	await page.goto('/it/articoli/il-mio-primo-videogioco-era-un-sistema-distribuito/');
+
+	const toc = page.getByRole('navigation', { name: "Indice dell'articolo" });
+	const firstChapter = toc.getByRole('link', { name: 'Il gioco che immaginavo' });
+	const secondChapter = toc.getByRole('link', { name: 'Prima dello schermo veniva il sistema' });
+
+	await expect(firstChapter).toHaveAttribute('aria-current', 'location');
+	await page.locator('#prima-dello-schermo-veniva-il-sistema').evaluate((heading) => {
+		heading.scrollIntoView();
+	});
+	await expect(secondChapter).toHaveAttribute('aria-current', 'location');
+	await expect(toc.locator('[aria-current="location"]')).toHaveCount(1);
+});
+
+test('project details lead with structured evidence and honest provenance', async ({ page }) => {
+	await page.goto('/en/projects/spingo-sustainable-micromobility/');
+
+	const details = page.getByRole('complementary', { name: 'Project details' });
+	await expect(details.getByText('109', { exact: true })).toBeVisible();
+	await expect(details.getByText('Prototype', { exact: true })).toBeVisible();
+	await expect(details.getByText('Team work', { exact: true })).toBeVisible();
+	await expect(details.getByRole('link', { name: /Team repository/ })).toContainText('github.com');
+	await expect(details.getByRole('link', { name: /Team repository/ })).toContainText('Team repository');
+});
+
+test('archives use distinct writing and project discovery surfaces', async ({ page }) => {
+	await page.goto('/en/writing/');
+	await expect(page.locator('[data-writing-archive]')).toBeVisible();
+	await expect(page.getByRole('link', { name: /RSS/ })).toHaveAttribute('href', '/en/rss.xml');
+	await expect(page.locator('.writing-list > article').first()).toBeVisible();
+
+	await page.goto('/en/projects/');
+	const evidencedProject = page.locator('[data-project-item]').filter({ hasText: 'Priority Task Queue Manager' });
+	await expect(evidencedProject.locator('.project-proof')).toBeVisible();
+	await expect(evidencedProject.locator('.project-status')).toBeVisible();
+});
+
+test('detail pages emit large social images and writing advertises its feed', async ({ page }) => {
+	await page.goto('/en/writing/rebuilding-galaxy-trucker-with-claude/');
+	await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+	await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /^https?:\/\//);
+	await expect(page.locator('link[type="application\/rss\+xml"]')).toHaveAttribute('href', /\/en\/rss\.xml$/);
+});
+
+test('substantial projects expose desktop navigation without duplicating it on mobile', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 900 });
+	await page.goto('/en/projects/galaxy-trucker-java-project/');
+	await expect(page.getByRole('navigation', { name: 'Project contents' })).toBeVisible();
+
+	await page.setViewportSize({ width: 390, height: 844 });
+	await expect(page.getByRole('navigation', { name: 'Project contents' })).toBeHidden();
+	await expect(page.getByRole('complementary', { name: 'Project details' })).toBeVisible();
+});
+
+test('project contents remain sticky while the article body continues', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 900 });
+	await page.goto('/en/projects/galaxy-trucker-java-project/');
+
+	const contents = page.getByRole('navigation', { name: 'Project contents' });
+	await contents.scrollIntoViewIfNeeded();
+	await page.evaluate(() => window.scrollBy(0, 400));
+
+	const box = await contents.boundingBox();
+	expect(box).not.toBeNull();
+	expect(box!.y).toBeGreaterThanOrEqual(24);
+	expect(box!.y).toBeLessThanOrEqual(40);
+});
+
+test('project contents highlight only the section currently being read', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 900 });
+	await page.goto('/it/progetti/galaxy-trucker-progetto-java/');
+
+	const contents = page.getByRole('navigation', { name: 'Indice del progetto' });
+	for (const section of ['Il mio contributo', 'Perimetro completato, build archiviata']) {
+		await page.getByRole('heading', { level: 2, name: section }).evaluate((heading) => {
+			heading.scrollIntoView({ block: 'center' });
+		});
+		await expect(contents.locator('[aria-current="location"]')).toHaveCount(1);
+		await expect(contents.getByRole('link', { name: section })).toHaveAttribute('aria-current', 'location');
+	}
+});
+
+test('project contents bold only the current section', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 900 });
+	await page.goto('/it/progetti/pianificatore-percorsi-autostradali/');
+
+	const contents = page.getByRole('navigation', { name: 'Indice del progetto' });
+	const current = contents.getByRole('link', { name: 'Dalla specifica al problema' });
+	const inactive = contents.getByRole('link', { name: 'Modello dei dati' });
+
+	await expect(current).toHaveAttribute('aria-current', 'location');
+	const [currentWeight, inactiveWeight] = await Promise.all([
+		current.evaluate((element) => Number.parseInt(getComputedStyle(element).fontWeight, 10)),
+		inactive.evaluate((element) => Number.parseInt(getComputedStyle(element).fontWeight, 10)),
+	]);
+	expect(currentWeight).toBeGreaterThanOrEqual(600);
+	expect(inactiveWeight).toBeLessThanOrEqual(500);
+});
+
+test('Galaxy articles use claim-specific evidence visuals', async ({ page }) => {
+	await page.goto('/en/writing/my-first-video-game-was-a-distributed-system/');
+	await expect(page.locator('.multiplayer-system-flow')).toBeVisible();
+	await expect(page.locator('.authority-boundary')).toContainText('Authoritative server');
+
+	await page.goto('/en/writing/rebuilding-galaxy-trucker-with-claude/');
+	const comparison = page.getByRole('region', { name: 'AI reconstruction evidence comparison' });
+	await expect(comparison).toBeVisible();
+	await expect(comparison.getByRole('table')).toBeVisible();
+});
+
+test('article and project details use a quieter reading scale', async ({ page }) => {
+	await page.setViewportSize({ width: 1280, height: 900 });
+
+	for (const sample of [
+		{
+			path: '/it/articoli/il-mio-primo-videogioco-era-un-sistema-distribuito/',
+			title: '.article-hero h1',
+			prose: '.article-prose',
+		},
+		{
+			path: '/it/progetti/galaxy-trucker-progetto-java/',
+			title: '.detail-title h1',
+			prose: '.detail-grid > .prose',
+		},
+	]) {
+		await page.goto(sample.path);
+		const sizes = await page.locator(sample.title + ', ' + sample.prose).evaluateAll(
+			(elements) => elements.map((element) => Number.parseFloat(getComputedStyle(element).fontSize)),
+		);
+		expect(sizes[0]).toBeLessThanOrEqual(100);
+		expect(sizes[1]).toBeLessThanOrEqual(21);
+	}
+});
+
+test('article and project narrative copy share the same typeface', async ({ page }) => {
+	await page.goto('/it/articoli/il-mio-primo-videogioco-era-un-sistema-distribuito/');
+	const articleTypeface = await page.locator('.article-prose > p').first().evaluate(
+		(element) => getComputedStyle(element).fontFamily,
+	);
+
+	await page.goto('/it/progetti/spingo-micromobilita-sostenibile/');
+	const projectTypeface = await page.locator('.detail-grid > .prose > blockquote:first-child p').first().evaluate(
+		(element) => getComputedStyle(element).fontFamily,
+	);
+
+	expect(projectTypeface).toBe(articleTypeface);
 });
 
 test('article navigation yields the full width to prose on mobile', async ({ page }) => {

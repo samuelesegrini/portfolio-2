@@ -3,13 +3,15 @@ translationKey: spingo-sustainable-micromobility
 locale: it
 slug: spingo-micromobilita-sostenibile
 title: SpinGO
-excerpt: Un progetto HCI che trasforma ricerca utenti, prototipazione e usability testing in un ecosistema mobile per una micromobilità urbana più sicura e prevedibile.
+excerpt: 109 risposte e 7 sessioni di usabilità hanno guidato un’app di micromobilità con 89.2 SUS e interazioni di guida fuori dallo smartphone.
 draft: false
 coverImage: /images/projects/spingo-micromobility.svg
 coverAlt: Illustrazione geometrica di una bicicletta collegata da un percorso verde acido a un punto sicuro
 seoTitle: SpinGO — Case study HCI sulla micromobilità sostenibile
 seoDescription: Ricerca utenti, prototipazione mobile e usability testing per SpinGO, un progetto HCI sulla micromobilità urbana sostenibile.
 kind: app
+lifecycle: prototype
+authorship: team
 year: 2026
 role: Frontend developer e membro del team HCI
 technologies:
@@ -19,9 +21,25 @@ technologies:
   - TypeScript
   - GSAP
 featuredRank: 3
-repositoryURL: https://github.com/milenaramosduran/hci-eco
-liveURL: https://milenaramosduran.github.io/hci-eco/
-relatedPostKeys: []
+outcomes:
+  - value: "109"
+    label: risposte alla survey
+    method: Survey di needfinding
+  - value: "7"
+    label: sessioni di usability testing
+    method: Sessioni moderate sul prototipo
+  - value: "89.2"
+    label: punteggio SUS
+    method: System Usability Scale dopo il test
+startingPoint: Chi si muove in città chiedeva percorsi più sicuri e meno interazioni con lo smartphone durante la guida.
+links:
+  - url: https://github.com/milenaramosduran/hci-eco
+    label: Repository del team
+    relationship: team-repository
+  - url: https://milenaramosduran.github.io/hci-eco/
+    label: Sito del progetto
+    relationship: live-demo
+relatedPosts: []
 ---
 
 > SpinGO è il progetto del team 30%usability per il corso di Human-Computer Interaction del Politecnico di Milano 2025–2026. Il lavoro segue l’intero processo user-centered: needfinding, sintesi dei bisogni, prototipi a fedeltà crescente, valutazione euristica e usability testing.
@@ -29,12 +47,6 @@ relatedPostKeys: []
 > Il concept propone un’app mobile con companion per smartwatch che aiuta chi usa bici, e-bike e monopattini a scegliere percorsi più sicuri, gestire la sosta e condividere informazioni utili con la community.
 >
 > Come frontend developer ho realizzato il sito React e TypeScript che organizza risultati, deliverable e prototipi in una narrazione interattiva. Il progetto di ricerca e design è invece un lavoro collettivo del team di cinque persone.
-
-<dl class="project-results" aria-label="Risultati chiave">
-  <div><dt>109</dt><dd>risposte alla survey</dd></div>
-  <div><dt>7</dt><dd>sessioni di usability testing</dd></div>
-  <div><dt>89,2</dt><dd>punteggio SUS</dd></div>
-</dl>
 
 ## Il problema di partenza
 
@@ -44,9 +56,7 @@ La domanda non era quindi semplicemente come costruire un’altra app di navigaz
 
 ## Needfinding e triangolazione
 
-La prima fase ha combinato metodi quantitativi e qualitativi. Il questionario ha raccolto 109 risposte, prevalentemente da persone tra i 18 e i 35 anni e residenti a Milano o provincia. Il campione comprendeva utenti abituali, persone interessate ma non attive e persone che non consideravano la micromobilità.
-
-Quattro interviste semi-strutturate da 30–45 minuti hanno approfondito esperienze concrete: percorsi evitati, strategie contro i furti, autonomia dei mezzi elettrici e limiti delle applicazioni esistenti. In seguito, due focus group hanno messo in discussione e raffinato i pattern emersi, facendo emergere anche la dimensione sociale della fiducia.
+La prima fase ha combinato 109 risposte alla survey, quattro interviste e due focus group. Ha coinvolto utenti abituali, persone interessate e non utenti, approfondendo percorsi evitati, furti, autonomia e fiducia negli strumenti esistenti.
 
 La triangolazione ha evidenziato tre comportamenti ricorrenti:
 
@@ -65,8 +75,6 @@ Affinity mapping e dot voting hanno permesso di convergere su quattro direzioni 
 - **fluidità**, per ridurre interruzioni e carico cognitivo tra le diverse fasi del viaggio;
 - **appartenenza**, trasformando segnalazioni ed esperienze individuali in conoscenza collettiva.
 
-Questi bisogni sono stati rappresentati attraverso personas e scenari, evitando di trattarli come una lista astratta di funzionalità. Ogni scelta successiva è stata collegata a un comportamento osservato o a una tensione emersa dalla ricerca.
-
 <figure class="project-explainer">
   <img src="/images/projects/explainers/spingo-research-loop.svg" alt="Ricerca con utenti trasformata in bisogni, prototipo mobile e nuovo ciclo di test" width="1200" height="675" loading="lazy" />
   <figcaption>Interviste, survey e focus group convergono in bisogni progettuali; il prototipo li rende verificabili e i test riportano nuove evidenze dentro il processo.</figcaption>
@@ -74,7 +82,7 @@ Questi bisogni sono stati rappresentati attraverso personas e scenari, evitando 
 
 ## Tre task e due direzioni
 
-Il prodotto è stato organizzato attorno a tre task di complessità crescente. Il task principale permette di pianificare e completare un viaggio sicuro, confrontando alternative, avvisi e opzioni di sosta. Il secondo riguarda la personalizzazione di mezzi, preferenze e routine. Il terzo abilita contributi alla community, dalla segnalazione di un pericolo alla condivisione di un percorso.
+Tre task coprivano pianificazione sicura, mezzi e preferenze, segnalazioni e percorsi condivisi dalla community.
 
 Nella fase low-fidelity abbiamo confrontato due direzioni:
 
@@ -84,8 +92,6 @@ Nella fase low-fidelity abbiamo confrontato due direzioni:
 L’app mobile offriva la copertura migliore dei tre task, ma esponeva al rischio di distrazione durante la guida. La soluzione finale ha quindi conservato la ricchezza dell’app e trasferito le interazioni essenziali a un companion per smartwatch: prossima svolta, feedback aptico e segnalazioni rapide.
 
 ## Dall’euristica al prototipo hi-fi
-
-Il prototipo mid-fidelity ha introdotto una tab bar persistente con Mappa, Profilo e Community. La Mappa è diventata il centro operativo per ricerca, confronto dei percorsi, segnalazioni e sosta; il Profilo raccoglie mezzi e preferenze; la Community organizza discussioni e contributi.
 
 Una valutazione euristica esterna ha evidenziato problemi di chiarezza e scoperta. La tab bar era troppo piccola, il pulsante indietro non seguiva le convenzioni, alcune azioni non restituivano feedback e i flussi relativi a punti di interesse e percorsi salvati risultavano ambigui.
 
@@ -105,12 +111,12 @@ Il test non è stato trattato come una conferma finale, ma come una nuova sorgen
 
 ## Il sito del progetto
 
-Ho trasformato il materiale del corso in un sito React e TypeScript pubblicato su GitHub Pages. L’interfaccia presenta la ricerca, le personas, i pattern e le sei consegne attraverso componenti dedicati, collegando documenti PDF e prototipi Figma senza ridurli a una semplice lista di download.
+Ho trasformato ricerca, sei consegne, documenti e prototipi Figma in un sito React e TypeScript pubblicato su GitHub Pages.
 
-GSAP e ScrollTrigger gestiscono il titolo animato, il menu, le transizioni e una timeline orizzontale delle consegne. Il componente più articolato coordina pannelli, avanzamento, documenti e anteprime Figma in modali. La struttura mantiene separati contenuti, immagini e comportamento, mentre la pipeline GitHub Actions costruisce e pubblica il sito a ogni aggiornamento del branch principale.
+GSAP e ScrollTrigger supportano la presentazione e una timeline orizzontale delle consegne, mentre GitHub Actions costruisce e pubblica il sito dal branch principale.
 
 ## Cosa porterei avanti
 
 SpinGO mi ha mostrato che un numero positivo non conclude una ricerca. Il SUS elevato descrive una percezione complessiva, mentre esitazioni e percorsi sbagliati rivelano dove l’architettura dell’informazione non coincide ancora con il modello mentale dell’utente.
 
-In una nuova iterazione trasformerei il prototipo in una demo funzionante con dati controllati, validerei i flussi corretti con un secondo ciclo di test e ridurrei l’uso di animazioni non essenziali nel sito. Aggiungerei inoltre una gestione sistematica di tastiera, focus e `prefers-reduced-motion`, così che la presentazione del progetto applichi gli stessi principi di accessibilità discussi nel processo HCI.
+In una nuova iterazione validerei i flussi corretti in una demo funzionante e ridurrei le animazioni non essenziali. Aggiungerei inoltre supporto sistematico per tastiera, focus e movimento ridotto nella presentazione.

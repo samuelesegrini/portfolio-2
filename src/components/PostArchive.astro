@@ -10,8 +10,8 @@ const { posts } = await getPortfolioContent();
 const published = getPublishedPosts(posts, lang);
 const isIt = lang === 'it';
 const copy = isIt
-	? { title: 'Articoli', eyebrow: 'Note dal lavoro', description: 'Decisioni tecniche, processi e cose imparate costruendo.' }
-	: { title: 'Writing', eyebrow: 'Notes from the work', description: 'Technical decisions, process, and lessons from building.' };
+	? { title: 'Articoli', eyebrow: 'Note dal lavoro', description: 'Decisioni tecniche, processi e cose imparate costruendo.', feed: 'Segui via RSS' }
+	: { title: 'Writing', eyebrow: 'Notes from the work', description: 'Technical decisions, process, and lessons from building.', feed: 'Follow via RSS' };
 ---
 
 <BaseLayout
@@ -22,6 +22,6 @@ const copy = isIt
 	alternateIt="/it/articoli/"
 	alternateEn="/en/writing/"
 >
-	<header class="page-hero dark-section"><p class="eyebrow">{copy.eyebrow}</p><h1>{copy.title}</h1><p>{copy.description}</p></header>
-	<section class="section archive-section"><div class="post-grid light">{published.map((post) => <PostCard title={post.title} excerpt={post.excerpt} href={postPath(post)} date={post.publishedAt} tags={post.tags} lang={lang} />)}</div></section>
+	<header class="page-hero writing-archive-hero dark-section"><p class="eyebrow">{copy.eyebrow}</p><h1>{copy.title}</h1><div><p>{copy.description}</p><a href={isIt ? '/it/rss.xml' : '/en/rss.xml'}>{copy.feed} <span aria-hidden="true">↗</span></a></div></header>
+	<section class="section archive-section" data-writing-archive><div class="writing-list">{published.map((post) => <PostCard title={post.title} excerpt={post.excerpt} href={postPath(post)} date={post.publishedAt} tags={post.tags} lang={lang} />)}</div></section>
 </BaseLayout>

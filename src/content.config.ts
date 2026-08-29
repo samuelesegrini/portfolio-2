@@ -9,10 +9,16 @@ const localizedFields = {
 	locale,
 	slug,
 	title: z.string().min(1),
+	/**
+	 * The deck. For a project this is one sentence stating a result — see the deck rules in
+	 * README.md; `validateProjectDecks` in src/lib/content.ts enforces the mechanical half.
+	 */
 	excerpt: z.string().min(1),
 	draft: z.boolean().default(true),
 	coverImage: z.string().min(1),
 	coverAlt: z.string().trim().min(1),
+	/** Overrides `coverImage` for og:image and twitter:image when a crop reads badly at card size. */
+	socialImage: z.string().min(1).optional(),
 	seoTitle: z.string().min(1).optional(),
 	seoDescription: z.string().min(1).optional(),
 };
@@ -22,13 +28,51 @@ const projects = defineCollection({
 	schema: z.object({
 		...localizedFields,
 		kind: z.enum(['app', 'package', 'open-source', 'experiment']),
+		lifecycle: z.enum(['verified', 'archived', 'prototype', 'in-progress']),
+		authorship: z.enum(['individual', 'team', 'contribution']),
 		year: z.number().int().min(1990).max(2100),
 		role: z.string().min(1),
 		technologies: z.array(z.string().min(1)).min(1),
 		featuredRank: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
-		repositoryURL: z.url().optional(),
-		liveURL: z.url().optional(),
-		relatedPostKeys: z.array(z.string().min(1)).default([]),
+		outcomes: z
+			.array(
+				z.object({
+					value: z.string().min(1),
+					label: z.string().min(1),
+					/** How the value was obtained. A portfolio has no customer name to serve as warrant. */
+					method: z.string().min(1).optional(),
+				}),
+			)
+			.max(4)
+			.default([]),
+		/** The displaced baseline: what the work was measured against, in one line. */
+		startingPoint: z.string().min(1).optional(),
+		/** At most one, and only for a judgement the narrator cannot honestly make about themselves. */
+		testimonial: z
+			.object({
+				quote: z.string().min(1),
+				name: z.string().min(1),
+				role: z.string().min(1),
+			})
+			.optional(),
+		links: z
+			.array(
+				z.object({
+					url: z.url(),
+					label: z.string().min(1),
+					relationship: z.enum([
+						'my-repository',
+						'team-repository',
+						'live-demo',
+						'write-up',
+						'course-page',
+					]),
+				}),
+			)
+			.default([]),
+		relatedPosts: z
+			.array(z.object({ key: z.string().min(1), reason: z.string().min(1) }))
+			.default([]),
 	}),
 });
 

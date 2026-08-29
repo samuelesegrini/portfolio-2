@@ -3,13 +3,15 @@ translationKey: galaxy-trucker
 locale: en
 slug: galaxy-trucker-java-project
 title: Galaxy Trucker
-excerpt: A four-person Java client–server game, followed by an independent AI-assisted reconstruction that tested delivery speed and architectural continuity against the same requirements.
+excerpt: Four people shipped a Socket-and-RMI multiplayer game; a later AI-assisted rebuild tested which architectural constraints still held.
 draft: false
 coverImage: /images/projects/galaxy-trucker-network.png
 coverAlt: Geometric modular spaceship connected through a server to four clients
 seoTitle: Galaxy Trucker — Java multiplayer game and AI reconstruction
 seoDescription: Case study of a four-person Java client-server implementation of Galaxy Trucker and a later AI-assisted reconstruction based on the same requirements.
 kind: app
+lifecycle: archived
+authorship: team
 year: 2025
 role: Team developer; AI-assisted reconstruction author
 technologies:
@@ -18,9 +20,23 @@ technologies:
   - Maven
   - Socket / RMI
   - JUnit
-relatedPostKeys:
-  - rebuilding-galaxy-trucker-with-claude
-  - my-first-video-game
+outcomes:
+  - value: "4"
+    label: people in the original team
+    method: Course team roster
+  - value: "2"
+    label: network transports
+    method: Socket and RMI implementations
+  - value: "2"
+    label: playable interfaces
+    method: TUI and JavaFX clients
+startingPoint: Four people, one semester, and a stateful board game to translate into a distributed system.
+links: []
+relatedPosts:
+  - key: rebuilding-galaxy-trucker-with-claude
+    reason: Compare the archived team architecture with the later AI-assisted reconstruction.
+  - key: my-first-video-game
+    reason: Read the personal account of learning distributed systems through the project.
 ---
 
 > Galaxy Trucker began as the final project for the 2024–2025 Software Engineering course at Politecnico di Milano. Our four-person team translated the board game into a distributed Java application with an authoritative server, multiple clients, two network transports, and both textual and graphical interfaces.
@@ -28,12 +44,6 @@ relatedPostKeys:
 > The team completed the agreed academic scope. The repository is nevertheless not a polished product maintained after submission: its archived source contains a known client compilation defect. I preserve that fact instead of rewriting the shared history.
 >
 > In 2026 I returned to the same requirements for a separate AI-assisted reconstruction. This page presents the project; the linked article examines that later experiment in depth.
-
-<dl class="project-results" aria-label="Project scope">
-  <div><dt>4</dt><dd>people in the original team</dd></div>
-  <div><dt>2</dt><dd>network transports</dd></div>
-  <div><dt>2</dt><dd>playable interfaces</dd></div>
-</dl>
 
 ## The collaborative product
 

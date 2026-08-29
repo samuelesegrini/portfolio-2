@@ -13,6 +13,9 @@ interface Props {
 	coverImage?: string;
 	coverAlt?: string;
 	filterKind?: string;
+	outcome?: { value: string; label: string };
+	lifecycleLabel?: string;
+	authorshipLabel?: string;
 }
 
 const {
@@ -29,6 +32,9 @@ const {
 	coverImage,
 	coverAlt = '',
 	filterKind,
+	outcome,
+	lifecycleLabel,
+	authorshipLabel,
 } = Astro.props;
 ---
 
@@ -60,6 +66,8 @@ const {
 		<div>
 			<h3>{title}</h3>
 			<p>{excerpt}</p>
+			{archive && outcome && <p class="project-proof"><strong>{outcome.value}</strong> {outcome.label}</p>}
+			{archive && lifecycleLabel && authorshipLabel && <p class="project-status">{lifecycleLabel} · {authorshipLabel}</p>}
 		</div>
 		<span class="project-arrow" aria-hidden="true">↗</span>
 	</a>

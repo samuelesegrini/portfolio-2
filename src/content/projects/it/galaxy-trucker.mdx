@@ -3,13 +3,15 @@ translationKey: galaxy-trucker
 locale: it
 slug: galaxy-trucker-progetto-java
 title: Galaxy Trucker
-excerpt: Un gioco Java client–server realizzato da un team di quattro persone, seguito da una ricostruzione indipendente assistita da AI per confrontare velocità e continuità architetturale sugli stessi requisiti.
+excerpt: Quattro persone hanno consegnato un gioco multiplayer Socket e RMI; una ricostruzione AI successiva ha verificato quali vincoli architetturali resistessero.
 draft: false
 coverImage: /images/projects/galaxy-trucker-network.png
 coverAlt: Nave modulare geometrica collegata tramite un server a quattro client
 seoTitle: Galaxy Trucker — Gioco multiplayer Java e ricostruzione AI
 seoDescription: Case study di un'implementazione client-server Java di Galaxy Trucker realizzata da quattro persone e di una successiva ricostruzione assistita da AI.
 kind: app
+lifecycle: archived
+authorship: team
 year: 2025
 role: Sviluppatore nel team; autore della ricostruzione assistita da AI
 technologies:
@@ -18,9 +20,23 @@ technologies:
   - Maven
   - Socket / RMI
   - JUnit
-relatedPostKeys:
-  - rebuilding-galaxy-trucker-with-claude
-  - my-first-video-game
+outcomes:
+  - value: "4"
+    label: persone nel team originale
+    method: Composizione del team di corso
+  - value: "2"
+    label: trasporti di rete
+    method: Implementazioni Socket e RMI
+  - value: "2"
+    label: interfacce giocabili
+    method: Client TUI e JavaFX
+startingPoint: Quattro persone, un semestre e un gioco da tavolo basato sullo stato da tradurre in un sistema distribuito.
+links: []
+relatedPosts:
+  - key: rebuilding-galaxy-trucker-with-claude
+    reason: Confronta l'architettura del team archiviata con la successiva ricostruzione assistita da AI.
+  - key: my-first-video-game
+    reason: Leggi il racconto personale sull'apprendimento dei sistemi distribuiti attraverso il progetto.
 ---
 
 > Galaxy Trucker nasce come progetto finale del corso di Ingegneria del Software 2024–2025 al Politecnico di Milano. Il nostro team di quattro persone ha tradotto il gioco da tavolo in un'applicazione Java distribuita con un server autorevole, più client, due trasporti di rete e interfacce sia testuali sia grafiche.
@@ -28,12 +44,6 @@ relatedPostKeys:
 > Il team ha completato il perimetro accademico concordato. Il repository non è però un prodotto mantenuto e rifinito dopo la consegna: il sorgente archiviato contiene un errore noto di compilazione nel client. Conservo questo fatto invece di riscrivere retroattivamente la storia condivisa.
 >
 > Nel 2026 sono tornato sugli stessi requisiti per una ricostruzione separata assistita da AI. Questa pagina presenta il progetto; l'articolo collegato approfondisce l'esperimento successivo.
-
-<dl class="project-results" aria-label="Dimensioni del progetto">
-  <div><dt>4</dt><dd>persone nel team originale</dd></div>
-  <div><dt>2</dt><dd>trasporti di rete</dd></div>
-  <div><dt>2</dt><dd>interfacce giocabili</dd></div>
-</dl>
 
 ## Il prodotto collaborativo
 
